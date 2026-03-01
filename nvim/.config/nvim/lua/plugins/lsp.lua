@@ -15,6 +15,7 @@ return {
     vim.lsp.enable({
       'lua_ls',
       'elixirls',
+      'tsgo',
     })
   end
 }
