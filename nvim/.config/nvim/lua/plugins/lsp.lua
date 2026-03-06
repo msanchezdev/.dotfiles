@@ -1,5 +1,5 @@
 return {
-  "neovim/nvim-lspconfig",
+  'neovim/nvim-lspconfig',
   dependencies = {
     {
       'folke/lazydev.nvim',
@@ -12,10 +12,17 @@ return {
     }
   },
   config = function()
+    require('lazydev').setup({})
     vim.lsp.enable({
       'lua_ls',
       'elixirls',
       'tsgo',
     })
+
+    group('LSP', function(m)
+      m.normal('<leader>f', function()
+        vim.lsp.buf.format()
+      end, 'Format Buffer')
+    end)
   end
 }

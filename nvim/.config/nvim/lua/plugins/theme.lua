@@ -1,6 +1,12 @@
 return {
-  "ellisonleao/gruvbox.nvim",
-  config = function()
-    vim.cmd.colorscheme("gruvbox")
-  end
+  {
+    'ellisonleao/gruvbox.nvim',
+    dependencies = {
+      { 'khoido2003/monokai-v2.nvim' },
+    },
+    config = function()
+      -- vim.cmd.colorscheme("gruvbox")
+      vim.cmd.colorscheme("monokai-v2")
+    end
+  },
 }

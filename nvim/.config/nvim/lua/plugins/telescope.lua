@@ -11,7 +11,11 @@ return {
     group('Telescope', function(m)
       m.normal('<leader>sh', builtin.help_tags, '[S]earch [H]elp')
       m.normal('<leader>sk', builtin.keymaps, '[S]earch [K]eymaps')
-      m.normal('<leader>sf', builtin.find_files, '[S]earch [F]iles')
+      m.normal('<leader>sf', function()
+        builtin.find_files({
+
+        })
+      end, '[S]earch [F]iles')
       m.normal('<leader>ss', builtin.builtin, '[S]earch [S]elect Telescope')
       m.normal('<leader>sg', builtin.live_grep, '[S]earch by [G]rep')
       m.normal('<leader>s.', builtin.oldfiles, '[S]earch Recent Files')
