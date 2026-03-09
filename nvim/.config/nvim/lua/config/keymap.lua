@@ -54,6 +54,11 @@ group('Others', function(m)
   m.normal('n', 'nzzzv')
   m.normal('N', 'Nzzzv')
 
+  m.insert('<C-h>', '<Left>')
+  m.insert('<C-j>', '<Down>')
+  m.insert('<C-k>', '<Up>')
+  m.insert('<C-l>', '<Right>')
+
   m.normal('<leader>y', '"+y')
   m.visual('<leader>y', '"+y')
   m.normal('<leader>Y', '"+Y')
