@@ -5,21 +5,35 @@ return {
     { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
     'nvim-tree/nvim-web-devicons',
   },
+  event = 'VimEnter',
   config = function()
     local telescope = require('telescope')
     local builtin = require('telescope.builtin')
+    local themes = require('telescope.themes')
+
     telescope.setup({
-      defaults = {
+      defaults = themes.get_dropdown({
         file_ignore_patterns = {
           'node_modules',
           '%.git',
         },
-      },
+        winblend = 10,
+        layout_config = {
+          width = function (_, cols, _)
+            if cols > 120 + 4 then
+              return 120
+            else
+              return math.floor(cols * 0.9 + 0.5)
+            end
+          end,
+          height = 0.75,
+        },
+        layout_strategy = "vertical"
+      }),
       pickers = {
         find_files = {
           hidden = true,
-          theme = 'dropdown',
-        }
+        },
       }
     })
 
