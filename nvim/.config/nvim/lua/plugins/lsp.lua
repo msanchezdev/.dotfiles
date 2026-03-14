@@ -1,5 +1,6 @@
 return {
   'neovim/nvim-lspconfig',
+  priority = 90,
   dependencies = {
     {
       'folke/lazydev.nvim',
@@ -17,6 +18,7 @@ return {
       'lua_ls',
       'elixirls',
       'tsgo',
+      'yamlls',
     })
 
     group('LSP', function(m)
