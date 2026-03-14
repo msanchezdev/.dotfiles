@@ -1,9 +1,12 @@
 return {
   'NeogitOrg/neogit',
-  lazy = true,
-  cmd = 'Neogit',
   dependencies = {
     'nvim-lua/plenary.nvim',
     'sindrets/diffview.nvim',
-  }
+  },
+  config = function ()
+    group('Neogit', function(m)
+      m.normal('<leader>gg', '<cmd>Neogit<cr>')
+    end)
+  end
 }
