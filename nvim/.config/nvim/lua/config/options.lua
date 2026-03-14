@@ -29,6 +29,7 @@ vim.opt.mouse = 'a'
 vim.opt.list = true
 vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 vim.opt.updatetime = 50
+vim.opt.scrolloff = 8
 
 vim.opt.swapfile = false
 vim.opt.backup = false
