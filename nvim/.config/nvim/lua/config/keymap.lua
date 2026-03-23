@@ -1,11 +1,14 @@
 --- @alias KeymapMapper fun(keys: string, func: string | function, desc?: string, opts?: table)
---- @alias ModeHelper {
----   normal: KeymapMapper,
----   insert: KeymapMapper,
----   visual: KeymapMapper,
----   command: KeymapMapper,
----   terminal: KeymapMapper
---- }
+---
+--- @class ModeHelper
+--- @field normal KeymapMapper,
+--- @field insert KeymapMapper,
+--- @field visual KeymapMapper,
+--- @field command KeymapMapper,
+--- @field terminal KeymapMapper,
+--- @field augroup fun(name: string, opts: vim.api.keyset.create_augroup),
+--- @field autocmd fun(name: string | table, opts: vim.api.keyset.create_autocmd)
+---
 --- @param name string
 --- @param callback fun(m: ModeHelper)
 function group(name, callback)
@@ -26,6 +29,8 @@ function group(name, callback)
     visual = mapper_for_mode('v'),
     command = mapper_for_mode('c'),
     terminal = mapper_for_mode('t'),
+    augroup = vim.api.nvim_create_augroup,
+    autocmd = vim.api.nvim_create_autocmd,
   })
 end
 
