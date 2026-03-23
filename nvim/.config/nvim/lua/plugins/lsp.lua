@@ -16,15 +16,42 @@ return {
     require('lazydev').setup({})
     vim.lsp.enable({
       'lua_ls',
-      'elixirls',
+      'expert',
       'tsgo',
       'yamlls',
     })
 
-    group('LSP', function(m)
-      m.normal('<leader>f', function()
-        vim.lsp.buf.format()
-      end, 'Format Buffer')
+    local capabilities = require('cmp_nvim_lsp').default_capabilities()
+
+    group("LSP:", function(m)
+      m.autocmd('LspAttach', {
+        group = m.augroup('lsp_attach', { clear = true }),
+        callback = function(event)
+          local client = vim.lsp.get_client_by_id(event.data.client_id)
+          if client and client.server_capabilities.documentHighlightProvider then
+            m.autocmd({ 'CursorHold', 'CursorHoldI' }, {
+              buffer = event.buf,
+              callback = vim.lsp.buf.document_highlight,
+            })
+
+            m.autocmd({ 'CursorMoved', 'CursorMovedI' }, {
+              buffer = event.buf,
+              callback = vim.lsp.buf.clear_references,
+            })
+          end
+
+          m.normal('grD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+          m.normal('grd', vim.lsp.buf.definition, '[G]oto [d]efinition')
+        end
+      })
+
+      vim.diagnostic.config({
+        float = {
+          source = true,
+          style = "minimal",
+          border = "rounded",
+        }
+      })
     end)
   end
 }
