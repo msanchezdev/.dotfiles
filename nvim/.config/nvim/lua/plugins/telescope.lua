@@ -46,6 +46,15 @@ return {
       m.normal('<leader>s.', builtin.oldfiles, '[S]earch Recent Files')
       m.normal('<leader>sr', builtin.resume, '[S]earch [R]esume')
       m.normal('<leader><leader>', builtin.buffers, '[ ] Search Buffers')
+      m.normal('<leader>sd', builtin.diagnostics, '[S]earch [D]iagnostics')
+      m.normal('<leader>sld', builtin.lsp_definitions, '[S]earch [D]efinitions')
+      m.normal('<leader>sltd', builtin.lsp_type_definitions, '[S]earch [T]ype [D]efinitions')
+      m.normal('<leader>slr', builtin.lsp_references, '[S]earch [R]eferences')
+      m.normal('<leader>slws', builtin.lsp_workspace_symbols, '[S]earch [W]orkspace [S]ymbols')
+      m.normal('<leader>slds', builtin.lsp_document_symbols, '[S]earch [D]ocument [S]ymbols')
+      m.normal('<leader>sli', builtin.lsp_implementations, '[S]earch [I]mplementations')
+      m.normal('<leader>slci', builtin.lsp_incoming_calls, '[S]earch [C]alls / [I]ncoming')
+      m.normal('<leader>slco', builtin.lsp_outgoing_calls, '[S]earch [C]alls / [O]utgoing')
 
       local find_config = function(path, opts)
         opts = opts or {}
