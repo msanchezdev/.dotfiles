@@ -36,7 +36,8 @@ end
 
 group('Buffers', function(m)
   m.normal('<leader>`', '<cmd>e #<cr>', 'Switch to Other Buffer')
-  m.normal('<leader>bD', '<cmd>:bd<cr>', 'Delete Buffer and Window')
+  m.normal('<leader>bd', '<cmd>:bd<cr>', 'Delete Buffer and Window')
+  m.normal('<leader>bD', '<cmd>:bd!<cr>', 'Delete Buffer and Window (discard changes)')
 end)
 
 group('Move Lines', function(m)
