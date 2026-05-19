@@ -4,10 +4,10 @@ return {
 		formatters_by_ft = {
 			json = { "jq" },
 			lua = { "stylua" },
-			javascript = { "prettierd", "prettier", "tsgo", stop_after_first = true },
-			javascriptreact = { "prettierd", "prettier", "tsgo", stop_after_first = true },
-			typescript = { "prettierd", "prettier", "tsgo", stop_after_first = true },
-			typescriptreact = { "prettierd", "prettier", "tsgo", stop_after_first = true },
+			javascript = { "biome", "prettierd", "prettier", "tsgo", stop_after_first = true },
+			javascriptreact = { "biome", "prettierd", "prettier", "tsgo", stop_after_first = true },
+			typescript = { "biome", "prettierd", "prettier", "tsgo", stop_after_first = true },
+			typescriptreact = { "biome", "prettierd", "prettier", "tsgo", stop_after_first = true },
 		},
 	},
 	config = function(_, opts)
