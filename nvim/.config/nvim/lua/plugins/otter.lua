@@ -1,0 +1,25 @@
+-- Embedded LSP for surql`...` template literals in JS/TS: otter.nvim extracts
+-- the injected SurrealQL region (via the tree-sitter injection shipped by
+-- surrealql-nvim) into a hidden `surrealql` buffer, attaches the SurrealQL LSP
+-- to it, and proxies completion/hover/diagnostics back.
+return {
+  'jmbuhr/otter.nvim',
+  dependencies = { 'nvim-treesitter/nvim-treesitter' },
+  config = function()
+    require('otter').setup({
+      -- Map the injected language name -> file extension, so the otter buffer
+      -- gets filetype `surrealql` and the surql LSP attaches.
+      extensions = { surrealql = 'surql' },
+    })
+
+    vim.api.nvim_create_autocmd('FileType', {
+      group = vim.api.nvim_create_augroup('otter.surql', { clear = true }),
+      pattern = { 'typescript', 'typescriptreact', 'javascript', 'javascriptreact' },
+      callback = function()
+        -- (languages, completion, diagnostics); diagnostics off to avoid noise
+        -- from ${...} interpolations landing in the extracted query.
+        require('otter').activate({ 'surrealql' }, true, false)
+      end,
+    })
+  end,
+}
