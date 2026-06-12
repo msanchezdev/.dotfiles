@@ -1,0 +1,6 @@
+# Per-device secrets — never commit.
+env/devices/*.local.env
+
+# The profile pointer lives in ~/.config/dotfiles/profile (outside the repo),
+# but ignore a stray copy if one ever lands here.
+/profile
