@@ -9,6 +9,7 @@ else
   _C_RESET=; _C_BOLD=; _C_DIM=; _C_BLUE=; _C_GREEN=; _C_YELLOW=; _C_RED=
 fi
 
+rule() { printf '%s%s%s\n' "$_C_DIM" "────────────────────────────────────────────────────────────" "$_C_RESET"; }
 step() { printf '\n%s==>%s %s%s%s\n' "$_C_BLUE$_C_BOLD" "$_C_RESET" "$_C_BOLD" "$*" "$_C_RESET"; }
 info() { printf '    %s\n' "$*"; }
 ok()   { printf '    %s✓%s %s\n' "$_C_GREEN" "$_C_RESET" "$*"; }

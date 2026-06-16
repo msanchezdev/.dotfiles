@@ -19,14 +19,18 @@ if ! has brew; then
   if command -v sudo >/dev/null 2>&1 && [ "$(id -u)" -ne 0 ]; then
     sudo -v || die "sudo access is required to install Homebrew (your user must be an Administrator, and you must run via 'bash -c \"\$(curl ...)\"' so the password can be entered)"
     # Keep the sudo timestamp warm during the (possibly long) install so it
-    # doesn't expire between Homebrew's sudo calls.
+    # doesn't expire between Homebrew's sudo calls. disown so the shell doesn't
+    # print a "Terminated" job notice when we stop it below.
     ( while kill -0 "$$" 2>/dev/null; do sudo -n true 2>/dev/null; sleep 50; done ) &
     _sudo_keepalive=$!
+    disown "$_sudo_keepalive" 2>/dev/null || true
   fi
   NONINTERACTIVE=1 /bin/bash -c \
     "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" \
     || die "Homebrew install failed"
   [ -n "${_sudo_keepalive:-}" ] && kill "$_sudo_keepalive" 2>/dev/null
+  # Visually separate Homebrew's large output from the rest of the install.
+  rule
 fi
 # Make brew available in this shell for the current run.
 if ! has brew; then

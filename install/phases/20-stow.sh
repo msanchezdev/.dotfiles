@@ -27,7 +27,7 @@ stow_pkg() { # <stow-dir> <package>
 # Shared packages.
 for d in "$DOTFILES"/*/; do
   pkg="$(basename "$d")"
-  _is_stow_package "$d" || { skip "$pkg (not a stow package)"; continue; }
+  _is_stow_package "$d" || continue   # skip repo infra (install/, manifest/, env/, test/, ...)
   stow_pkg "$DOTFILES" "$pkg"
 done
 
