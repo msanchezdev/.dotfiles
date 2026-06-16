@@ -10,9 +10,23 @@ step "Bootstrap toolchain"
 # Homebrew -------------------------------------------------------------------
 if ! has brew; then
   info "Installing Homebrew"
+  # Homebrew installs NONINTERACTIVE (so it never stops to prompt), which means
+  # it won't ask for a sudo password either — it needs one already cached. On
+  # macOS sudo requires a password, so prime it up front. This needs a real
+  # terminal: run via `bash -c "$(curl ...)"`, NOT `curl ... | bash` (a pipe
+  # has no TTY, so sudo can't read the password). Passwordless sudo (CI/Linux)
+  # makes `sudo -v` a no-op.
+  if command -v sudo >/dev/null 2>&1 && [ "$(id -u)" -ne 0 ]; then
+    sudo -v || die "sudo access is required to install Homebrew (your user must be an Administrator, and you must run via 'bash -c \"\$(curl ...)\"' so the password can be entered)"
+    # Keep the sudo timestamp warm during the (possibly long) install so it
+    # doesn't expire between Homebrew's sudo calls.
+    ( while kill -0 "$$" 2>/dev/null; do sudo -n true 2>/dev/null; sleep 50; done ) &
+    _sudo_keepalive=$!
+  fi
   NONINTERACTIVE=1 /bin/bash -c \
     "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" \
     || die "Homebrew install failed"
+  [ -n "${_sudo_keepalive:-}" ] && kill "$_sudo_keepalive" 2>/dev/null
 fi
 # Make brew available in this shell for the current run.
 if ! has brew; then
