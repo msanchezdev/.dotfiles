@@ -1,0 +1,21 @@
+-- DISABLED reference from your previous config.
+-- To re-enable: uncomment the spec below and delete the trailing 'return {}'.
+-- (Note: old keymaps used custom group()/m.* helpers that no longer exist —
+--  adapt them to vim.keymap.set when reviving.)
+--
+-- return {
+--   "folke/which-key.nvim",
+--   event = "VeryLazy",
+--   opts = {},
+--   keys = {
+--     {
+--       "<leader>?",
+--       function()
+--         require('which-key').show({ global = false })
+--       end,
+--       desc = "Which Key: Buffer Keymaps"
+--     }
+--   }
+-- }
+
+return {}

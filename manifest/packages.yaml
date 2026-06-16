@@ -13,6 +13,9 @@
 packages:
   # neovim (config in nvim/.config/nvim bootstraps lazy.nvim; plugins added over time)
   - { via: brew, name: neovim, bin: nvim, tags: [core, nvim] }
+  # telescope runtime deps: ripgrep (live_grep), fd (find_files)
+  - { via: brew, name: ripgrep, bin: rg, tags: [nvim] }
+  - { via: brew, name: fd,      bin: fd, tags: [nvim] }
 
   # tmux + its plugin manager (config in tmux/.tmux.conf loads plugins via tpm)
   - { via: brew, name: tmux, bin: tmux, tags: [core] }
@@ -25,9 +28,7 @@ packages:
 #   - { via: brew, name: fzf,       bin: fzf,    tags: [core] }
 #   - { via: brew, name: zoxide,    bin: zoxide, tags: [core] }
 #
-#   # nvim runtime deps (telescope, treesitter, yazi)
-#   - { via: brew, name: ripgrep,   bin: rg,     tags: [nvim] }
-#   - { via: brew, name: fd,        bin: fd,     tags: [nvim] }
+#   # nvim runtime deps (treesitter, yazi)
 #   - { via: brew, name: yazi,      bin: yazi,   tags: [nvim] }
 #   - { via: brew, name: jq,        bin: jq,     tags: [nvim, cli] }
 #   - { via: brew, name: yq,        bin: yq,     tags: [cli] }

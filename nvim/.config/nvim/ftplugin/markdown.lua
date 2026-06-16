@@ -1,0 +1,4 @@
+-- DISABLED reference (ftplugin auto-sources this on markdown; commented = no-op).
+--
+-- -- vim.opt_local.wrap = false
+-- -- vim.opt_local.linebreak = false
