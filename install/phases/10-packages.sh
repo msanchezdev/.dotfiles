@@ -1,5 +1,5 @@
 # shellcheck shell=bash
-# Phase 20 — install packages from the YAML manifests.
+# Phase 10 — install packages from the YAML manifests.
 # Shared manifest first, then the device manifest (extra packages for this host).
 
 step "Packages ($PROFILE)"

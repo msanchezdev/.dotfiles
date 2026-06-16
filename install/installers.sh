@@ -29,11 +29,22 @@ install_npm() {
   npm install -g "$name" >/dev/null 2>&1 && ok "$name" || warn "failed: npm install -g $name"
 }
 
+# Refresh apt's package lists at most once per run — a fresh machine (or a
+# container with cleared lists) can't install anything until this runs.
+_APT_UPDATED=
+_apt_update_once() {
+  [ -n "$_APT_UPDATED" ] && return
+  info "apt-get update"
+  sudo apt-get update -qq >/dev/null 2>&1 || warn "apt-get update failed"
+  _APT_UPDATED=1
+}
+
 # install_apt <name> <bin>
 install_apt() {
   local name="$1" bin="$2"
   [ -n "$bin" ] && has "$bin" && { skip "$name (apt, $bin present)"; return; }
   if dpkg -s "$name" >/dev/null 2>&1; then skip "$name (apt, installed)"; return; fi
+  _apt_update_once
   info "apt-get install $name"
   sudo apt-get install -y "$name" >/dev/null 2>&1 && ok "$name" || warn "failed: apt-get install $name"
 }

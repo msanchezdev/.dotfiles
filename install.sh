@@ -28,18 +28,22 @@ printf '%sdotfiles%s · profile %s%s%s · %s\n' \
 run_phase() {
   case "$1" in
     bootstrap)   source "$DOTFILES/install/phases/00-bootstrap.sh" ;;
-    env)         source "$DOTFILES/install/phases/10-env.sh" ;;
-    packages)    source "$DOTFILES/install/phases/20-packages.sh" ;;
-    stow)        source "$DOTFILES/install/phases/30-stow.sh" ;;
+    packages)    source "$DOTFILES/install/phases/10-packages.sh" ;;
+    stow)        source "$DOTFILES/install/phases/20-stow.sh" ;;
+    env)         source "$DOTFILES/install/phases/30-env.sh" ;;
     postinstall) source "$DOTFILES/install/phases/40-postinstall.sh" ;;
-    *) die "unknown phase '$1' (bootstrap|env|packages|stow|postinstall)" ;;
+    *) die "unknown phase '$1' (bootstrap|packages|stow|env|postinstall)" ;;
   esac
 }
 
+# stow runs before env on purpose: stowing the zsh package creates ~/.zshrc
+# (which already embeds the managed env block), so the env phase then finds the
+# marker and skips re-adding it. Running env first would create ~/.zshrc as a
+# real file and make the zsh stow conflict.
 if [ "$#" -gt 0 ]; then
   for phase in "$@"; do run_phase "$phase"; done
 else
-  for phase in bootstrap env packages stow postinstall; do run_phase "$phase"; done
+  for phase in bootstrap packages stow env postinstall; do run_phase "$phase"; done
 fi
 
 step "Done"

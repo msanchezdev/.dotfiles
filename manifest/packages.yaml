@@ -46,3 +46,4 @@ packages:
 
   # --- git-cloned tools ------------------------------------------------------
   - { via: git, name: tpm, repo: "https://github.com/tmux-plugins/tpm", dest: "~/.tmux/plugins/tpm", tags: [tmux] }
+  - { via: git, name: oh-my-zsh, repo: "https://github.com/ohmyzsh/ohmyzsh", dest: "~/.oh-my-zsh", tags: [zsh] }

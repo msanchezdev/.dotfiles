@@ -18,10 +18,22 @@ cd ~/.dotfiles
 | phase         | what it does                                                        |
 |---------------|---------------------------------------------------------------------|
 | `bootstrap`   | ensure Homebrew + `yq`/`jq` (manifest parser) + `bun`               |
-| `env`         | assemble `~/.config/dotfiles/env.sh`, source it from `~/.zshrc`      |
 | `packages`    | install everything in the manifests                                 |
 | `stow`        | symlink config packages into `$HOME`                                |
+| `env`         | assemble `~/.config/dotfiles/env.sh`, source it from `~/.zshrc`      |
 | `postinstall` | tmux plugins (tpm) + `nvim` headless `:Lazy sync`                    |
+
+`stow` runs before `env` deliberately: stowing the `zsh` package creates
+`~/.zshrc` (which already embeds the env-sourcing block), so `env` then finds
+it and skips. Running `env` first would create `~/.zshrc` as a real file and
+the `zsh` stow would conflict.
+
+## Testing on a clean machine
+
+`test/run.sh` boots a bare Ubuntu container, copies in the working tree (minus
+`.git` and `*.local.env`, i.e. a fresh-clone view), and runs the full installer
+as an unprivileged user — then verifies symlinks, tools, and idempotency.
+Requires Docker.
 
 ## Layout
 

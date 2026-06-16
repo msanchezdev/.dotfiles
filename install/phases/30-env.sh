@@ -1,5 +1,5 @@
 # shellcheck shell=bash
-# Phase 10 — assemble the runtime env from shared + device layers.
+# Phase 30 — assemble the runtime env from shared + device layers.
 # Layering (later wins): shared.env -> devices/<profile>.env -> <profile>.local.env
 # The result is written to ~/.config/dotfiles/env.sh and sourced from the shell.
 
