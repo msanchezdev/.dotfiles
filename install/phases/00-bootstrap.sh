@@ -64,12 +64,24 @@ for tool in yq jq stow; do
 done
 
 # bun (JS-ecosystem installer) ----------------------------------------------
-# bun's installer unzips its release, so ensure unzip first (absent on minimal
-# Linux). brew is already available, so use it for a portable dependency.
+# Like brew, bun installs to a dir (~/.bun/bin) a bare shell rc may not have on
+# PATH — probe it first so we don't reinstall. Loading it onto PATH also lets
+# the packages phase find bun-installed bins (biome, tsgo, ...) on re-runs.
+_load_bun() {
+  has bun && return 0
+  [ -x "$HOME/.bun/bin/bun" ] && { export PATH="$HOME/.bun/bin:$PATH"; return 0; }
+  return 1
+}
+
+_load_bun || true
 if ! has bun; then
+  # bun's installer unzips its release, so ensure unzip first (absent on
+  # minimal Linux). brew is already available for a portable dependency.
   has unzip || { info "Installing unzip (bun prerequisite)"; brew install unzip >/dev/null 2>&1 || warn "unzip install failed"; }
   info "Installing bun"
   curl -fsSL https://bun.sh/install | bash >/dev/null 2>&1 || warn "bun install failed"
-  [ -x "$HOME/.bun/bin/bun" ] && export PATH="$HOME/.bun/bin:$PATH"
+  _load_bun || true
+  has bun && ok "bun installed" || warn "bun unavailable — bun packages will be skipped"
+else
+  skip "bun present"
 fi
-has bun && ok "bun" || warn "bun unavailable — bun packages will be skipped"
