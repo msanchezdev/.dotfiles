@@ -1,5 +1,8 @@
 # Shared package manifest — installed on every device.
 #
+# BARE: no packages are installed. Uncomment entries below (or add your own)
+# as you rebuild your setup from scratch.
+#
 # Each entry:
 #   via:   installer (brew | bun | npm | apt | git)   [required]
 #   name:  package name / id passed to the installer  [required]
@@ -7,43 +10,46 @@
 #   only:  [linux, macos] platform gate                [optional, default all]
 #   repo / dest: for via: git                          [required for git]
 #   tags:  free-form grouping for humans               [optional]
-packages:
-  # --- core CLI / editor -----------------------------------------------------
-  - { via: brew, name: neovim,   bin: nvim,  tags: [core, nvim] }
-  - { via: brew, name: tmux,     bin: tmux,  tags: [core] }
-  - { via: brew, name: stow,     bin: stow,  tags: [core] }
-  - { via: brew, name: git-delta, bin: delta, tags: [core, git] }
-  - { via: brew, name: fzf,      bin: fzf,   tags: [core] }
-  - { via: brew, name: zoxide,   bin: zoxide, tags: [core] }
+packages: []
 
-  # --- nvim runtime deps (telescope, treesitter, yazi) ----------------------
-  - { via: brew, name: ripgrep,  bin: rg,    tags: [nvim] }
-  - { via: brew, name: fd,       bin: fd,    tags: [nvim] }
-  - { via: brew, name: yazi,     bin: yazi,  tags: [nvim] }
-  - { via: brew, name: jq,       bin: jq,    tags: [nvim, cli] }
-  - { via: brew, name: yq,       bin: yq,    tags: [cli] }
-  - { via: apt,  name: build-essential, bin: gcc, only: [linux], tags: [nvim] }
-
-  # --- LSP servers & formatters ---------------------------------------------
-  - { via: brew, name: lua-language-server, bin: lua-language-server, tags: [lsp] }
-  - { via: brew, name: stylua,  bin: stylua, tags: [format] }
-  - { via: bun,  name: "@biomejs/biome",          bin: biome,    tags: [lsp, format] }
-  - { via: bun,  name: prettier,                  bin: prettier, tags: [format] }
-  - { via: bun,  name: "@fsouza/prettierd",       bin: prettierd, tags: [format] }
-  - { via: bun,  name: yaml-language-server,      bin: yaml-language-server, tags: [lsp] }
-  - { via: bun,  name: "@typescript/native-preview", bin: tsgo,  tags: [lsp, format] }
-  - { via: bun,  name: vscode-langservers-extracted, bin: vscode-json-language-server, tags: [lsp] }
-
-  # --- general CLI / media ---------------------------------------------------
-  - { via: brew, name: asciinema, bin: asciinema, tags: [cli] }
-  - { via: brew, name: figlet,    bin: figlet,    tags: [cli] }
-  - { via: brew, name: httpie,    bin: http,      tags: [cli] }
-  - { via: brew, name: sevenzip,  bin: 7zz,       tags: [cli] }
-  - { via: brew, name: poppler,   bin: pdfinfo,   tags: [cli, media] }
-  - { via: brew, name: resvg,     bin: resvg,     tags: [media] }
-  - { via: brew, name: ffmpeg-full,     bin: ffmpeg, tags: [media] }
-  - { via: brew, name: imagemagick-full, bin: magick, tags: [media] }
-
-  # --- git-cloned tools ------------------------------------------------------
-  - { via: git, name: tpm, repo: "https://github.com/tmux-plugins/tpm", dest: "~/.tmux/plugins/tpm", tags: [tmux] }
-  - { via: git, name: oh-my-zsh, repo: "https://github.com/ohmyzsh/ohmyzsh", dest: "~/.oh-my-zsh", tags: [zsh] }
+# --- reference (previous full setup) — uncomment what you want ---------------
+#
+#   # core CLI / editor
+#   - { via: brew, name: neovim,    bin: nvim,   tags: [core, nvim] }
+#   - { via: brew, name: tmux,      bin: tmux,   tags: [core] }
+#   - { via: brew, name: stow,      bin: stow,   tags: [core] }
+#   - { via: brew, name: git-delta, bin: delta,  tags: [core, git] }
+#   - { via: brew, name: fzf,       bin: fzf,    tags: [core] }
+#   - { via: brew, name: zoxide,    bin: zoxide, tags: [core] }
+#
+#   # nvim runtime deps (telescope, treesitter, yazi)
+#   - { via: brew, name: ripgrep,   bin: rg,     tags: [nvim] }
+#   - { via: brew, name: fd,        bin: fd,     tags: [nvim] }
+#   - { via: brew, name: yazi,      bin: yazi,   tags: [nvim] }
+#   - { via: brew, name: jq,        bin: jq,     tags: [nvim, cli] }
+#   - { via: brew, name: yq,        bin: yq,     tags: [cli] }
+#   - { via: apt,  name: build-essential, bin: gcc, only: [linux], tags: [nvim] }
+#
+#   # LSP servers & formatters
+#   - { via: brew, name: lua-language-server, bin: lua-language-server, tags: [lsp] }
+#   - { via: brew, name: stylua,    bin: stylua, tags: [format] }
+#   - { via: bun,  name: "@biomejs/biome",          bin: biome,    tags: [lsp, format] }
+#   - { via: bun,  name: prettier,                  bin: prettier, tags: [format] }
+#   - { via: bun,  name: "@fsouza/prettierd",       bin: prettierd, tags: [format] }
+#   - { via: bun,  name: yaml-language-server,      bin: yaml-language-server, tags: [lsp] }
+#   - { via: bun,  name: "@typescript/native-preview", bin: tsgo,  tags: [lsp, format] }
+#   - { via: bun,  name: vscode-langservers-extracted, bin: vscode-json-language-server, tags: [lsp] }
+#
+#   # general CLI / media
+#   - { via: brew, name: asciinema, bin: asciinema, tags: [cli] }
+#   - { via: brew, name: figlet,    bin: figlet,    tags: [cli] }
+#   - { via: brew, name: httpie,    bin: http,      tags: [cli] }
+#   - { via: brew, name: sevenzip,  bin: 7zz,       tags: [cli] }
+#   - { via: brew, name: poppler,   bin: pdfinfo,   tags: [cli, media] }
+#   - { via: brew, name: resvg,     bin: resvg,     tags: [media] }
+#   - { via: brew, name: ffmpeg-full,      bin: ffmpeg, tags: [media] }
+#   - { via: brew, name: imagemagick-full, bin: magick, tags: [media] }
+#
+#   # git-cloned tools
+#   - { via: git, name: tpm,       repo: "https://github.com/tmux-plugins/tpm", dest: "~/.tmux/plugins/tpm", tags: [tmux] }
+#   - { via: git, name: oh-my-zsh, repo: "https://github.com/ohmyzsh/ohmyzsh",  dest: "~/.oh-my-zsh",        tags: [zsh] }

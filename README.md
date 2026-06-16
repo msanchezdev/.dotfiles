@@ -6,8 +6,16 @@ Shared config is committed; per-device bits layer on top.
 
 ## Fresh machine
 
+One line — installs git if needed, clones to `~/.dotfiles`, runs the installer:
+
 ```sh
-git clone <this-repo> ~/.dotfiles
+curl -fsSL https://raw.githubusercontent.com/msanchezdev/.dotfiles/main/bootstrap.sh | bash
+```
+
+Or manually:
+
+```sh
+git clone https://github.com/msanchezdev/.dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ./install.sh
 ```
