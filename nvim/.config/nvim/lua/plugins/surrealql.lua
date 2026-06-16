@@ -1,18 +1,28 @@
--- DISABLED reference from your previous config.
--- To re-enable: uncomment the spec below and delete the trailing 'return {}'.
--- (Note: old keymaps used custom group()/m.* helpers that no longer exist —
---  adapt them to vim.keymap.set when reviving.)
+-- SurrealQL LSP: diagnostics, hover, completion, rename, go-to-def/refs, and
+-- parser-accurate semantic-token highlighting.
 --
--- -- SurrealQL: LSP, tree-sitter highlighting, and surql`...` injection in JS/TS.
--- -- Dogfooding the local checkout; once published, swap `dir` for the repo
--- -- (e.g. 'surrealdb/surrealql-nvim'). The JS/TS host parsers it injects into
--- -- are ensured in plugins/treesitter.lua.
--- return {
---   dir = '/home/msanchezdev/.local/src/surrealql-nvim',
---   build = function() require('surrealql').install() end,
---   config = function()
---     require('surrealql').setup()
---   end,
--- }
-
-return {}
+-- Using the fork branch until the upstream fix lands; once merged, switch to
+--   'surrealdb/surrealql-neovim'  (drop branch).
+--
+-- The language server is a prebuilt binary the plugin downloads on first use
+-- (linux x86_64/arm64, macOS arm64, Windows x86_64) — no Rust toolchain.
+-- :SurrealQLInstall forces the download.
+--
+-- treesitter is OFF here: the LSP's semantic tokens already highlight. To add
+-- the tree-sitter grammar too, install nvim-treesitter, set treesitter.enable
+-- = true, and run :TSInstall surrealql.
+return {
+  'msanchezdev/surrealql-neovim',
+  branch = 'fix/lsp-binary-name-and-docs',
+  ft = { 'surrealql' },
+  main = 'surrealql',
+  -- Map .surql/.surrealql to the surrealql filetype early, so opening one
+  -- triggers the ft-based lazy load reliably.
+  init = function()
+    vim.filetype.add({ extension = { surql = 'surrealql', surrealql = 'surrealql' } })
+  end,
+  opts = {
+    treesitter = { enable = true },
+    lsp = { enable = true, auto_install = true },
+  },
+}
