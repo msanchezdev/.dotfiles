@@ -4,5 +4,10 @@
 
 -- Options (also sets the leader keys, which must happen before lazy.nvim).
 require('config.options')
+-- Core keymaps; also defines the global group() helper used by plugin specs,
+-- so load it before lazy.nvim sets up plugins.
+require('config.keymap')
 
 require('config.lazy')
+
+require('config.autocmds')
