@@ -1,7 +1,9 @@
 # shellcheck shell=bash
-# Phase 00 — bootstrap the package managers the rest of the install relies on.
-# This must run before anything reads the YAML manifest, because the manifest
-# parser (yq+jq) and most packages come from Homebrew.
+# Phase 00 — bootstrap the toolchain the rest of the install relies on. This
+# runs before the manifest is read, and installs the tools the *installer
+# itself* needs (brew, yq/jq to parse the manifest, stow to link configs, bun
+# to install JS packages) — independent of what the manifest lists, so a bare
+# or minimal manifest still produces a working setup.
 
 step "Bootstrap toolchain"
 
@@ -20,10 +22,13 @@ if ! has brew; then
 fi
 has brew && ok "Homebrew" || die "Homebrew not on PATH after install"
 
-# Manifest parser ------------------------------------------------------------
-for tool in yq jq; do
+# Installer infrastructure (manifest parser + config linker) -----------------
+# These are required by later phases regardless of the manifest, so they are
+# bootstrapped here rather than declared as packages.
+#   yq, jq  -> parse the YAML manifest        stow -> symlink configs (phase 20)
+for tool in yq jq stow; do
   if ! has "$tool"; then
-    info "Installing $tool (manifest parser)"
+    info "Installing $tool"
     brew install "$tool" >/dev/null 2>&1 && ok "$tool" || die "could not install $tool"
   else
     skip "$tool present"
@@ -31,7 +36,10 @@ for tool in yq jq; do
 done
 
 # bun (JS-ecosystem installer) ----------------------------------------------
+# bun's installer unzips its release, so ensure unzip first (absent on minimal
+# Linux). brew is already available, so use it for a portable dependency.
 if ! has bun; then
+  has unzip || { info "Installing unzip (bun prerequisite)"; brew install unzip >/dev/null 2>&1 || warn "unzip install failed"; }
   info "Installing bun"
   curl -fsSL https://bun.sh/install | bash >/dev/null 2>&1 || warn "bun install failed"
   [ -x "$HOME/.bun/bin/bun" ] && export PATH="$HOME/.bun/bin:$PATH"
