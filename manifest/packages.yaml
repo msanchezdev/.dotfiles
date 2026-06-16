@@ -11,6 +11,9 @@
 #   repo / dest: for via: git                          [required for git]
 #   tags:  free-form grouping for humans               [optional]
 packages:
+  # neovim (config in nvim/.config/nvim bootstraps lazy.nvim; plugins added over time)
+  - { via: brew, name: neovim, bin: nvim, tags: [core, nvim] }
+
   # tmux + its plugin manager (config in tmux/.tmux.conf loads plugins via tpm)
   - { via: brew, name: tmux, bin: tmux, tags: [core] }
   - { via: git,  name: tpm,  repo: "https://github.com/tmux-plugins/tpm", dest: "~/.tmux/plugins/tpm", tags: [tmux] }
@@ -18,7 +21,6 @@ packages:
 # --- reference (previous full setup) — uncomment what you want ---------------
 #
 #   # core CLI / editor   (stow/yq/jq/bun are bootstrap-managed, not listed here)
-#   - { via: brew, name: neovim,    bin: nvim,   tags: [core, nvim] }
 #   - { via: brew, name: git-delta, bin: delta,  tags: [core, git] }
 #   - { via: brew, name: fzf,       bin: fzf,    tags: [core] }
 #   - { via: brew, name: zoxide,    bin: zoxide, tags: [core] }
