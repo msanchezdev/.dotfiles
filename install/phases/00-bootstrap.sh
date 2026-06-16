@@ -8,6 +8,18 @@
 step "Bootstrap toolchain"
 
 # Homebrew -------------------------------------------------------------------
+# Load brew into this shell from its standard locations. A minimal/bare shell
+# rc may not put brew on PATH, so `has brew` alone would wrongly conclude it's
+# missing and reinstall it — check the install dirs directly first.
+_load_brew() {
+  has brew && return 0
+  for p in /opt/homebrew/bin/brew /home/linuxbrew/.linuxbrew/bin/brew /usr/local/bin/brew; do
+    [ -x "$p" ] && { eval "$("$p" shellenv)"; return 0; }
+  done
+  return 1
+}
+
+_load_brew || true
 if ! has brew; then
   info "Installing Homebrew"
   # Homebrew installs NONINTERACTIVE (so it never stops to prompt), which means
@@ -29,16 +41,14 @@ if ! has brew; then
     "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" \
     || die "Homebrew install failed"
   [ -n "${_sudo_keepalive:-}" ] && kill "$_sudo_keepalive" 2>/dev/null
+  _load_brew || true   # put the freshly installed brew on PATH for this run
   # Visually separate Homebrew's large output from the rest of the install.
   rule
+  ok "Homebrew installed"
+else
+  skip "Homebrew present"
 fi
-# Make brew available in this shell for the current run.
-if ! has brew; then
-  for p in /home/linuxbrew/.linuxbrew/bin/brew /opt/homebrew/bin/brew /usr/local/bin/brew; do
-    [ -x "$p" ] && eval "$("$p" shellenv)" && break
-  done
-fi
-has brew && ok "Homebrew" || die "Homebrew not on PATH after install"
+has brew || die "Homebrew not on PATH after install"
 
 # Installer infrastructure (manifest parser + config linker) -----------------
 # These are required by later phases regardless of the manifest, so they are
