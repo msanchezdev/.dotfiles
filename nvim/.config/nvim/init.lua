@@ -2,10 +2,7 @@
 -- Previous full config: ~/nvim-config.full.bak
 --   or: git show HEAD~1:nvim/.config/nvim/init.lua  (and the other files)
 
--- Leader keys must be set before lazy.nvim loads.
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
-
--- Add options/keymaps/autocmds here (or split into lua/config/* and require them).
+-- Options (also sets the leader keys, which must happen before lazy.nvim).
+require('config.options')
 
 require('config.lazy')
