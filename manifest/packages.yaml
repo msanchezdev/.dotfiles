@@ -49,6 +49,10 @@ packages:
   # `colima start` to bring up the runtime (docker context is set automatically;
   # `colima start --profile <name>` for per-project/company VMs). On WSL you use
   # Docker Desktop on Windows instead. (Alternatives: cask 'orbstack' or 'docker-desktop'.)
+  # Tailscale (macOS GUI app + system extension; includes the `tailscale` CLI).
+  # On WSL you use Tailscale on Windows.
+  - { via: cask, name: tailscale-app, only: [macos], tags: [app] }
+
   - { via: brew, name: colima,         bin: colima,         only: [macos], tags: [dev] }
   - { via: brew, name: docker,         bin: docker,         only: [macos], tags: [dev] }  # docker CLI client
   - { via: brew, name: docker-compose, bin: docker-compose, only: [macos], tags: [dev] }
