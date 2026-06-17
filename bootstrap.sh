@@ -14,14 +14,20 @@
 #   bash -c "$(curl -fsSL https://dotfiles.msanchez.dev/install)" -- bootstrap
 #
 # Env knobs:
-#   DOTFILES_DIR   where to clone (default: ~/.dotfiles)
+#   DOTFILES_DIR   where the repo lives (default: ~/git/github.com/msanchezdev/.dotfiles)
+#
+# The repo is cloned into a structured ~/git/<host>/<owner>/<repo> path; a
+# ~/.dotfiles symlink points at it so everything (install.sh, dotup, stow) keeps
+# referencing ~/.dotfiles.
 set -euo pipefail
 
 REPO_HTTPS="https://github.com/msanchezdev/.dotfiles.git"
 REPO_SSH="git@github.com:msanchezdev/.dotfiles"
-DEST="${DOTFILES_DIR:-$HOME/.dotfiles}"
+REPO_DIR="${DOTFILES_DIR:-$HOME/git/github.com/msanchezdev/.dotfiles}"
+LINK="$HOME/.dotfiles"
 
 info() { printf '\033[1;34m::\033[0m %s\n' "$*"; }
+warn() { printf '\033[1;33m::\033[0m %s\n' "$*" >&2; }
 die()  { printf '\033[1;31mError:\033[0m %s\n' "$*" >&2; exit 1; }
 
 # 1. Ensure git (needed to clone). Homebrew/install.sh handle the rest.
@@ -36,10 +42,22 @@ if ! command -v git >/dev/null 2>&1; then
   fi
 fi
 
-# 2. Clone (over HTTPS, no auth needed) or update an existing checkout.
-if [ ! -d "$DEST/.git" ]; then
-  info "Cloning into $DEST"
-  git clone "$REPO_HTTPS" "$DEST"
+# 2. Get the repo into REPO_DIR (clone, or migrate a legacy ~/.dotfiles checkout).
+mkdir -p "$(dirname "$REPO_DIR")"
+if [ ! -L "$LINK" ] && [ -d "$LINK/.git" ] && [ ! -d "$REPO_DIR/.git" ]; then
+  info "Migrating $LINK -> $REPO_DIR"
+  mv "$LINK" "$REPO_DIR"
+fi
+if [ ! -d "$REPO_DIR/.git" ]; then
+  info "Cloning into $REPO_DIR"
+  git clone "$REPO_HTTPS" "$REPO_DIR"
+fi
+
+# Point ~/.dotfiles at it (everything references ~/.dotfiles).
+if [ -L "$LINK" ] || [ ! -e "$LINK" ]; then
+  ln -sfn "$REPO_DIR" "$LINK"
+elif [ "$(cd "$LINK" 2>/dev/null && pwd -P)" != "$REPO_DIR" ]; then
+  warn "$LINK exists and isn't a symlink to $REPO_DIR — leaving it as is"
 fi
 
 # Fetch over HTTPS, push over SSH (for the owner). The HTTPS fetch keeps working
@@ -47,16 +65,14 @@ fi
 # .gitconfig: a repo-local, longer-prefix identity rewrite wins by longest match,
 # so only THIS repo is exempted from the SSH rewrite (no SSH key needed to pull).
 # Set this BEFORE pulling so it self-heals an existing checkout.
-git -C "$DEST" remote set-url origin "$REPO_HTTPS" 2>/dev/null || true
-git -C "$DEST" remote set-url --push origin "$REPO_SSH" 2>/dev/null || true
-git -C "$DEST" config "url.${REPO_HTTPS%.git}.insteadOf" "${REPO_HTTPS%.git}"
+git -C "$REPO_DIR" remote set-url origin "$REPO_HTTPS" 2>/dev/null || true
+git -C "$REPO_DIR" remote set-url --push origin "$REPO_SSH" 2>/dev/null || true
+git -C "$REPO_DIR" config "url.${REPO_HTTPS%.git}.insteadOf" "${REPO_HTTPS%.git}"
 
-if [ -d "$DEST/.git" ]; then
-  info "Updating $DEST"
-  git -C "$DEST" pull --ff-only || info "skipping update (local changes / diverged)"
-fi
+info "Updating $REPO_DIR"
+git -C "$REPO_DIR" pull --ff-only || info "skipping update (local changes / diverged)"
 
 # 3. Run the installer, forwarding any args.
 info "Running installer"
-cd "$DEST"
+cd "$REPO_DIR"
 exec ./install.sh "$@"

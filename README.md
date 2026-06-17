@@ -21,12 +21,22 @@ terminal attached, so Homebrew can prompt for your **sudo password on macOS**
 (a pipe has no TTY and fails with "Need sudo access"). Your user must be an
 Administrator.
 
+The repo is cloned into a structured path and symlinked to `~/.dotfiles`:
+
+```
+~/git/github.com/msanchezdev/.dotfiles   # the actual checkout
+~/.dotfiles -> ~/git/github.com/msanchezdev/.dotfiles   # symlink everything uses
+```
+
+Re-running the bootstrap migrates a legacy direct `~/.dotfiles` checkout into
+this layout. Override the location with `DOTFILES_DIR=…`.
+
 Or manually:
 
 ```sh
-git clone https://github.com/msanchezdev/.dotfiles.git ~/.dotfiles
-cd ~/.dotfiles
-./install.sh
+git clone https://github.com/msanchezdev/.dotfiles.git ~/git/github.com/msanchezdev/.dotfiles
+ln -s ~/git/github.com/msanchezdev/.dotfiles ~/.dotfiles
+~/.dotfiles/install.sh
 ```
 
 `install.sh` runs five idempotent phases (run one at a time by name, e.g.
