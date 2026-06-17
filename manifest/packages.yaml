@@ -29,14 +29,16 @@ packages:
   # claude code (native installer -> ~/.local/bin/claude; updates via `claude update`)
   - { via: script, name: claude, bin: claude, cmd: "curl -fsSL https://claude.ai/install.sh | bash", tags: [dev] }
 
+  # cli tools
+  - { via: brew, name: zoxide,    bin: zoxide, tags: [core] }   # `z` smart cd; zsh/.zshrc inits it
+  - { via: brew, name: git-delta, bin: delta,  tags: [git] }    # git pager; configured in git/.gitconfig
+  - { via: brew, name: yazi,      bin: yazi,   tags: [cli] }    # file manager; `y` fn in zsh/.zshrc
+
 # --- reference (previous full setup) — uncomment what you want ---------------
 #
 #   # core CLI / editor   (stow/yq/jq/bun are bootstrap-managed, not listed here)
-#   - { via: brew, name: git-delta, bin: delta,  tags: [core, git] }
-#   - { via: brew, name: zoxide,    bin: zoxide, tags: [core] }
 #
-#   # nvim runtime deps (treesitter, yazi)
-#   - { via: brew, name: yazi,      bin: yazi,   tags: [nvim] }
+#   # nvim runtime deps (treesitter)
 #   - { via: brew, name: jq,        bin: jq,     tags: [nvim, cli] }
 #   - { via: brew, name: yq,        bin: yq,     tags: [cli] }
 #   - { via: apt,  name: build-essential, bin: gcc, only: [linux], tags: [nvim] }

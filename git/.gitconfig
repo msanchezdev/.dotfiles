@@ -1,0 +1,24 @@
+[user]
+	email = manuel@msanchez.dev
+	name = Manuel Sánchez
+	signingkey = 0C6523E7C7DABF8FFA2855122C511B09207402C7
+[pull]
+	ff = yes
+[commit]
+	gpgsign = false
+[gpg]
+	program = /home/msanchezdev/.local/bin/gpg-pinentry-loopback
+[init]
+	defaultBranch = main
+[core]
+	pager = delta
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+	navigate = true
+	dark = true
+	side-by-side = false
+[merge]
+	conflictStyle = zdiff3
+[url "git@github.com:"]
+	insteadOf = https://github.com/
