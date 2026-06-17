@@ -9,10 +9,14 @@ Shared config is committed; per-device bits layer on top.
 One line — installs git if needed, clones to `~/.dotfiles`, runs the installer:
 
 ```sh
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/msanchezdev/.dotfiles/main/bootstrap.sh)"
+bash -c "$(curl -fsSL https://dotfiles.msanchez.dev/install)"
 ```
 
-Use this `bash -c "$(...)"` form rather than `curl ... | bash`: it keeps your
+(`dotfiles.msanchez.dev/install` is a Cloudflare Worker that serves the latest
+`bootstrap.sh` — see [`cloudflare/`](cloudflare/). Raw fallback:
+`https://raw.githubusercontent.com/msanchezdev/.dotfiles/main/bootstrap.sh`.)
+
+Use the `bash -c "$(...)"` form rather than `curl ... | bash`: it keeps your
 terminal attached, so Homebrew can prompt for your **sudo password on macOS**
 (a pipe has no TTY and fails with "Need sudo access"). Your user must be an
 Administrator.

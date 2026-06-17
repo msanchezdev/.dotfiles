@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 # One-line bootstrap for a fresh machine:
 #
-#   bash -c "$(curl -fsSL https://raw.githubusercontent.com/msanchezdev/.dotfiles/main/bootstrap.sh)"
+#   bash -c "$(curl -fsSL https://dotfiles.msanchez.dev/install)"
+#
+# (dotfiles.msanchez.dev/install is a Cloudflare Worker serving this file from
+# GitHub — see cloudflare/. Raw fallback:
+#   https://raw.githubusercontent.com/msanchezdev/.dotfiles/main/bootstrap.sh )
 #
 # Use this `bash -c "$(...)"` form, not `curl ... | bash`: it keeps a terminal
 # attached so Homebrew can prompt for your sudo password on macOS.
 #
 # Forward args to install.sh (e.g. run a single phase) with a trailing --:
-#   bash -c "$(curl -fsSL .../bootstrap.sh)" -- bootstrap
+#   bash -c "$(curl -fsSL https://dotfiles.msanchez.dev/install)" -- bootstrap
 #
 # Env knobs:
 #   DOTFILES_DIR   where to clone (default: ~/.dotfiles)

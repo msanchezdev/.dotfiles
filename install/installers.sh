@@ -72,11 +72,23 @@ install_script() {
   bash -c "$cmd" >/dev/null 2>&1 && ok "$name" || warn "failed: install script for $name"
 }
 
+# install_cask <name>
+# macOS GUI apps via Homebrew casks (gate these with only: [macos] — casks
+# don't exist on linuxbrew). Detect via `brew list --cask`, not a CLI bin.
+install_cask() {
+  local name="$1"
+  has brew || { warn "brew missing — can't install cask $name"; return; }
+  if brew list --cask "$name" >/dev/null 2>&1; then skip "$name (cask, installed)"; return; fi
+  info "brew install --cask $name"
+  brew install --cask "$name" >/dev/null 2>&1 && ok "$name" || warn "failed: brew install --cask $name"
+}
+
 # Route one manifest row to the right installer.
 dispatch_package() {
   local via="$1" name="$2" bin="$3" repo="$4" dest="$5" cmd="$6"
   case "$via" in
     brew)   install_brew   "$name" "$bin" ;;
+    cask)   install_cask   "$name" ;;
     bun)    install_bun    "$name" "$bin" ;;
     npm)    install_npm    "$name" "$bin" ;;
     apt)    install_apt    "$name" "$bin" ;;

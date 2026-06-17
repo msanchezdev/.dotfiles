@@ -34,6 +34,9 @@ packages:
   - { via: brew, name: git-delta, bin: delta,  tags: [git] }    # git pager; configured in git/.gitconfig
   - { via: brew, name: yazi,      bin: yazi,   tags: [cli] }    # file manager; `y` fn in zsh/.zshrc
 
+  # macOS GUI apps (Homebrew casks — macOS only)
+  - { via: cask, name: google-chrome, only: [macos], tags: [app] }
+
 # --- reference (previous full setup) — uncomment what you want ---------------
 #
 #   # core CLI / editor   (stow/yq/jq/bun are bootstrap-managed, not listed here)
