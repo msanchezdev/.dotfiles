@@ -72,7 +72,8 @@ git -C "$REPO_DIR" config "url.${REPO_HTTPS%.git}.insteadOf" "${REPO_HTTPS%.git}
 info "Updating $REPO_DIR"
 git -C "$REPO_DIR" pull --ff-only || info "skipping update (local changes / diverged)"
 
-# 3. Run the installer, forwarding any args.
+# 3. Run the installer via the ~/.dotfiles symlink, so DOTFILES resolves the
+# same way as `dotup` does (uniform stow link targets).
 info "Running installer"
-cd "$REPO_DIR"
+cd "$LINK"
 exec ./install.sh "$@"
