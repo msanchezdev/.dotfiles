@@ -21,6 +21,9 @@ packages:
   - { via: brew, name: tmux, bin: tmux, tags: [core] }
   - { via: git,  name: tpm,  repo: "https://github.com/tmux-plugins/tpm", dest: "~/.tmux/plugins/tpm", tags: [tmux] }
 
+  # zsh framework (zsh/.zshrc sources $ZSH/oh-my-zsh.sh)
+  - { via: git,  name: oh-my-zsh, repo: "https://github.com/ohmyzsh/ohmyzsh", dest: "~/.oh-my-zsh", tags: [zsh] }
+
 # --- reference (previous full setup) — uncomment what you want ---------------
 #
 #   # core CLI / editor   (stow/yq/jq/bun are bootstrap-managed, not listed here)
@@ -54,5 +57,4 @@ packages:
 #   - { via: brew, name: ffmpeg-full,      bin: ffmpeg, tags: [media] }
 #   - { via: brew, name: imagemagick-full, bin: magick, tags: [media] }
 #
-#   # git-cloned tools
-#   - { via: git, name: oh-my-zsh, repo: "https://github.com/ohmyzsh/ohmyzsh",  dest: "~/.oh-my-zsh",        tags: [zsh] }
+#   # git-cloned tools  (tpm and oh-my-zsh are active above)
