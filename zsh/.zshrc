@@ -11,6 +11,13 @@ plugins=(git)
 # Loaded after oh-my-zsh so its compinit has run. `fzf --zsh` needs fzf >= 0.48.
 command -v fzf >/dev/null 2>&1 && source <(fzf --zsh)
 
+# --- aliases ---
+alias reload-source='source ~/.zshrc'                  # reload this shell config
+# Update the dotfiles: pull latest, then re-run the (idempotent) installer.
+# Faster local equivalent of re-running the curl bootstrap. Config-only, skip
+# the heavier phases with:  ~/.dotfiles/install.sh stow env
+alias dotup='git -C "$HOME/.dotfiles" pull --ff-only && "$HOME/.dotfiles/install.sh"'
+
 # >>> dotfiles env >>>
 [ -f "$HOME/.config/dotfiles/env.sh" ] && source "$HOME/.config/dotfiles/env.sh"
 # <<< dotfiles env <<<
