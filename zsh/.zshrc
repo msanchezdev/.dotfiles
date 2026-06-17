@@ -7,6 +7,10 @@ ZSH_THEME="robbyrussell"
 plugins=(git)
 [ -f "$ZSH/oh-my-zsh.sh" ] && source "$ZSH/oh-my-zsh.sh"
 
+# --- fzf: key bindings (^R history, ^T files, Alt-C cd) + fuzzy completion ---
+# Loaded after oh-my-zsh so its compinit has run. `fzf --zsh` needs fzf >= 0.48.
+command -v fzf >/dev/null 2>&1 && source <(fzf --zsh)
+
 # >>> dotfiles env >>>
 [ -f "$HOME/.config/dotfiles/env.sh" ] && source "$HOME/.config/dotfiles/env.sh"
 # <<< dotfiles env <<<

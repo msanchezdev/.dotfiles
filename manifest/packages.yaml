@@ -23,12 +23,13 @@ packages:
 
   # zsh framework (zsh/.zshrc sources $ZSH/oh-my-zsh.sh)
   - { via: git,  name: oh-my-zsh, repo: "https://github.com/ohmyzsh/ohmyzsh", dest: "~/.oh-my-zsh", tags: [zsh] }
+  # fzf fuzzy finder; zsh/.zshrc loads its key bindings + completion via `fzf --zsh`
+  - { via: brew, name: fzf, bin: fzf, tags: [core, zsh] }
 
 # --- reference (previous full setup) — uncomment what you want ---------------
 #
 #   # core CLI / editor   (stow/yq/jq/bun are bootstrap-managed, not listed here)
 #   - { via: brew, name: git-delta, bin: delta,  tags: [core, git] }
-#   - { via: brew, name: fzf,       bin: fzf,    tags: [core] }
 #   - { via: brew, name: zoxide,    bin: zoxide, tags: [core] }
 #
 #   # nvim runtime deps (treesitter, yazi)
