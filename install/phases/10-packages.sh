@@ -17,16 +17,16 @@ install_manifest() {
   # Fields: via  name  bin  repo  dest  only
   local rows; rows="$(yq -o=json '.packages // []' "$file" | jq -r '
     .[] | [.via, .name, (.bin // ""), (.repo // ""), (.dest // ""),
-           ((.only // []) | join(","))] | join("\u001f")')"
+           ((.only // []) | join(",")), (.cmd // "")] | join("\u001f")')"
 
-  local via name bin repo dest only
-  while IFS=$'\037' read -r via name bin repo dest only; do
+  local via name bin repo dest only cmd
+  while IFS=$'\037' read -r via name bin repo dest only cmd; do
     [ -z "${via:-}" ] && continue
     if ! platform_match "$only"; then
       skip "$name (skipped on $(os_id))"; continue
     fi
     if [ "$via" = bun ] && ! has bun; then warn "skip $name (bun missing)"; continue; fi
-    dispatch_package "$via" "$name" "$bin" "$repo" "$dest"
+    dispatch_package "$via" "$name" "$bin" "$repo" "$dest" "$cmd"
   done <<< "$rows"
 }
 

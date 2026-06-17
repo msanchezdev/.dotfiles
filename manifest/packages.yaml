@@ -26,6 +26,9 @@ packages:
   # fzf fuzzy finder; zsh/.zshrc loads its key bindings + completion via `fzf --zsh`
   - { via: brew, name: fzf, bin: fzf, tags: [core, zsh] }
 
+  # claude code (native installer -> ~/.local/bin/claude; updates via `claude update`)
+  - { via: script, name: claude, bin: claude, cmd: "curl -fsSL https://claude.ai/install.sh | bash", tags: [dev] }
+
 # --- reference (previous full setup) — uncomment what you want ---------------
 #
 #   # core CLI / editor   (stow/yq/jq/bun are bootstrap-managed, not listed here)

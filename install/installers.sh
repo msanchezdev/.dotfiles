@@ -61,15 +61,27 @@ install_git() {
   git clone --depth 1 "$repo" "$dest" >/dev/null 2>&1 && ok "$name" || warn "failed: git clone $repo"
 }
 
+# install_script <name> <bin> <cmd>
+# For tools with their own curl|bash installer (e.g. claude). `cmd` runs only
+# when `bin` is absent, so it never reinstalls/updates on re-runs.
+install_script() {
+  local name="$1" bin="$2" cmd="$3"
+  [ -n "$bin" ] && has "$bin" && { skip "$name (script, $bin present)"; return; }
+  if [ -z "$cmd" ]; then warn "script package '$name' needs a cmd in the manifest"; return; fi
+  info "installing $name via its script"
+  bash -c "$cmd" >/dev/null 2>&1 && ok "$name" || warn "failed: install script for $name"
+}
+
 # Route one manifest row to the right installer.
 dispatch_package() {
-  local via="$1" name="$2" bin="$3" repo="$4" dest="$5"
+  local via="$1" name="$2" bin="$3" repo="$4" dest="$5" cmd="$6"
   case "$via" in
-    brew) install_brew "$name" "$bin" ;;
-    bun)  install_bun  "$name" "$bin" ;;
-    npm)  install_npm  "$name" "$bin" ;;
-    apt)  install_apt  "$name" "$bin" ;;
-    git)  install_git  "$name" "$repo" "$dest" ;;
-    *)    warn "unknown installer '$via' for '$name'" ;;
+    brew)   install_brew   "$name" "$bin" ;;
+    bun)    install_bun    "$name" "$bin" ;;
+    npm)    install_npm    "$name" "$bin" ;;
+    apt)    install_apt    "$name" "$bin" ;;
+    git)    install_git    "$name" "$repo" "$dest" ;;
+    script) install_script "$name" "$bin" "$cmd" ;;
+    *)      warn "unknown installer '$via' for '$name'" ;;
   esac
 }
