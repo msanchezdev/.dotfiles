@@ -42,6 +42,25 @@ function y() {
 	rm -f -- "$tmp"
 }
 
+# `obrew`: run Homebrew as whoever owns the prefix — for `brew install/upgrade`
+# on a Mac where another account owns /opt/homebrew. Read-only brew commands
+# (list, --prefix, shellenv) already work as any user, so use plain `brew` for
+# those. No-op on single-user machines (you own it -> runs brew directly).
+obrew() {
+	local prefix owner
+	prefix="$(brew --prefix 2>/dev/null)"; : "${prefix:=/opt/homebrew}"
+	if [ "$(uname)" = Darwin ]; then       # macOS and Linux stat differ
+		owner="$(stat -f '%Su' "$prefix" 2>/dev/null)"
+	else
+		owner="$(stat -c '%U' "$prefix" 2>/dev/null)"
+	fi
+	if [ -z "$owner" ] || [ "$owner" = "$(whoami)" ]; then
+		brew "$@"
+	else
+		sudo -H -u "$owner" "$prefix/bin/brew" "$@"
+	fi
+}
+
 # >>> dotfiles env >>>
 [ -f "$HOME/.config/dotfiles/env.sh" ] && source "$HOME/.config/dotfiles/env.sh"
 # <<< dotfiles env <<<
