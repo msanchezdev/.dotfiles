@@ -22,7 +22,7 @@ return {
     vim.filetype.add({ extension = { surql = 'surrealql', surrealql = 'surrealql' } })
   end,
   opts = {
-    treesitter = { enable = true },
+    treesitter = { enable = false },
     lsp = { enable = true, auto_install = true },
   },
 }
