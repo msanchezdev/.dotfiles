@@ -13,10 +13,10 @@ command -v fzf >/dev/null 2>&1 && source <(fzf --zsh)
 
 # --- aliases ---
 alias reload-source='source ~/.zshrc'                  # reload this shell config
-# Update the dotfiles: pull latest, then re-run the (idempotent) installer.
-# Faster local equivalent of re-running the curl bootstrap. Config-only, skip
-# the heavier phases with:  ~/.dotfiles/install.sh stow env
-alias dotup='git -C "$HOME/.dotfiles" pull --ff-only && "$HOME/.dotfiles/install.sh"'
+# Update the dotfiles: pull latest, re-run the (idempotent) installer, then
+# reload this shell. Faster local equivalent of re-running the curl bootstrap.
+# Config-only, skip the heavier phases with:  ~/.dotfiles/install.sh stow env
+alias dotup='git -C "$HOME/.dotfiles" pull --ff-only && "$HOME/.dotfiles/install.sh" && source ~/.zshrc'
 
 # >>> dotfiles env >>>
 [ -f "$HOME/.config/dotfiles/env.sh" ] && source "$HOME/.config/dotfiles/env.sh"
