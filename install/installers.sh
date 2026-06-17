@@ -2,6 +2,26 @@
 # Per-installer dispatch. Each install_<via> takes the fields parsed from a
 # manifest row and is responsible for being idempotent.
 
+# Run a (writing) brew command as whoever owns the prefix. On a shared Mac
+# where another account owns /opt/homebrew, a plain `brew install` fails the
+# ownership check; route it through `sudo -H -u <owner>`. No-op when you own
+# the prefix (the common case) — then it's just `brew`. Read-only brew calls
+# (list/--prefix) work as any user, so callers use plain `brew` for those.
+_brew() {
+  local prefix owner
+  prefix="$(brew --prefix 2>/dev/null)"; : "${prefix:=/opt/homebrew}"
+  if [ "$(uname)" = Darwin ]; then       # macOS and Linux `stat` differ
+    owner="$(stat -f '%Su' "$prefix" 2>/dev/null)"
+  else
+    owner="$(stat -c '%U' "$prefix" 2>/dev/null)"
+  fi
+  if [ -z "$owner" ] || [ "$owner" = "$(whoami)" ]; then
+    brew "$@"
+  else
+    sudo -H -u "$owner" "$prefix/bin/brew" "$@"
+  fi
+}
+
 # install_brew <name> <bin>
 install_brew() {
   local name="$1" bin="$2"
@@ -10,7 +30,7 @@ install_brew() {
     skip "$name (brew, already installed)"; return
   fi
   info "brew install $name"
-  brew install "$name" && ok "$name" || warn "failed: brew install $name"
+  _brew install "$name" && ok "$name" || warn "failed: brew install $name"
 }
 
 # install_bun <name> <bin>
@@ -80,7 +100,7 @@ install_cask() {
   has brew || { warn "brew missing — can't install cask $name"; return; }
   if brew list --cask "$name" >/dev/null 2>&1; then skip "$name (cask, installed)"; return; fi
   info "brew install --cask $name"
-  brew install --cask "$name" >/dev/null 2>&1 && ok "$name" || warn "failed: brew install --cask $name"
+  _brew install --cask "$name" >/dev/null 2>&1 && ok "$name" || warn "failed: brew install --cask $name"
 }
 
 # Route one manifest row to the right installer.

@@ -57,7 +57,7 @@ has brew || die "Homebrew not on PATH after install"
 for tool in yq jq stow; do
   if ! has "$tool"; then
     info "Installing $tool"
-    brew install "$tool" >/dev/null 2>&1 && ok "$tool" || die "could not install $tool"
+    _brew install "$tool" >/dev/null 2>&1 && ok "$tool" || die "could not install $tool"
   else
     skip "$tool present"
   fi
@@ -77,7 +77,7 @@ _load_bun || true
 if ! has bun; then
   # bun's installer unzips its release, so ensure unzip first (absent on
   # minimal Linux). brew is already available for a portable dependency.
-  has unzip || { info "Installing unzip (bun prerequisite)"; brew install unzip >/dev/null 2>&1 || warn "unzip install failed"; }
+  has unzip || { info "Installing unzip (bun prerequisite)"; _brew install unzip >/dev/null 2>&1 || warn "unzip install failed"; }
   info "Installing bun"
   curl -fsSL https://bun.sh/install | bash >/dev/null 2>&1 || warn "bun install failed"
   _load_bun || true
