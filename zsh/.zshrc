@@ -61,6 +61,35 @@ obrew() {
 	fi
 }
 
+# `clone <repo>`: clone into ~/git/<host>/<owner>/<repo> and cd in. Accepts:
+#   owner/repo                 (host defaults to github.com)
+#   host.tld/owner/repo        (first segment is the host when it has a dot)
+#   https://host/owner/repo[.git]   or   git@host:owner/repo[.git]
+clone() {
+	# NB: `rpath`, not `path` — in zsh `path` is special (tied to $PATH).
+	local input="${1:-}" host rpath dest first
+	[ -z "$input" ] && { echo "usage: clone <owner/repo | host/owner/repo | url>" >&2; return 1; }
+	case "$input" in
+		*://*)   host="${input#*://}"; host="${host##*@}"; host="${host%%/*}"; rpath="${input#*://*/}" ;;
+		*@*:*)   host="${input#*@}"; host="${host%%:*}"; rpath="${input##*:}" ;;
+		*/*)     first="${input%%/*}"
+		         case "$first" in
+		           *.*) host="$first"; rpath="${input#*/}" ;;   # first segment is a host
+		           *)   host="github.com"; rpath="$input" ;;
+		         esac ;;
+		*)       echo "clone: need owner/repo or a URL" >&2; return 1 ;;
+	esac
+	rpath="${rpath%.git}"; rpath="${rpath%/}"
+	[ -z "$host" ] || [ -z "$rpath" ] && { echo "clone: couldn't parse '$input'" >&2; return 1; }
+	dest="$HOME/git/$host/$rpath"
+	if [ -d "$dest/.git" ]; then
+		echo "already cloned: $dest"
+	else
+		mkdir -p "${dest:h}" && git clone "https://$host/$rpath.git" "$dest" || return 1
+	fi
+	cd "$dest"
+}
+
 # >>> dotfiles env >>>
 [ -f "$HOME/.config/dotfiles/env.sh" ] && source "$HOME/.config/dotfiles/env.sh"
 # <<< dotfiles env <<<
