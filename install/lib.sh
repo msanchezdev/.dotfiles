@@ -30,6 +30,21 @@ os_id() {
 
 is_wsl() { grep -qiE '(microsoft|wsl)' /proc/version 2>/dev/null; }
 
+# Prime sudo once and keep its timestamp warm for the rest of the run, so
+# elevated commands (brew as another user, apt) don't re-prompt the password
+# each time. Idempotent; no-op when already root or sudo is absent. The
+# background refresher exits when this process does.
+_SUDO_KEPT=
+sudo_keep() {
+  [ -n "$_SUDO_KEPT" ] && return 0
+  has sudo || return 1
+  [ "$(id -u)" -eq 0 ] && { _SUDO_KEPT=1; return 0; }
+  sudo -v || return 1
+  ( while kill -0 "$$" 2>/dev/null; do sudo -n true 2>/dev/null; sleep 50; done ) &
+  disown 2>/dev/null || true
+  _SUDO_KEPT=1
+}
+
 # True when the comma-separated platform list in $1 includes the current OS.
 # An empty list means "all platforms".
 platform_match() {

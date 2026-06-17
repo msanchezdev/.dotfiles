@@ -18,6 +18,7 @@ _brew() {
   if [ -z "$owner" ] || [ "$owner" = "$(whoami)" ]; then
     brew "$@"
   else
+    sudo_keep || { warn "need sudo to run brew as $owner"; return 1; }
     sudo -H -u "$owner" "$prefix/bin/brew" "$@"
   fi
 }
@@ -54,6 +55,7 @@ install_npm() {
 _APT_UPDATED=
 _apt_update_once() {
   [ -n "$_APT_UPDATED" ] && return
+  sudo_keep || true
   info "apt-get update"
   sudo apt-get update -qq >/dev/null 2>&1 || warn "apt-get update failed"
   _APT_UPDATED=1

@@ -28,19 +28,14 @@ if ! has brew; then
   # terminal: run via `bash -c "$(curl ...)"`, NOT `curl ... | bash` (a pipe
   # has no TTY, so sudo can't read the password). Passwordless sudo (CI/Linux)
   # makes `sudo -v` a no-op.
-  if command -v sudo >/dev/null 2>&1 && [ "$(id -u)" -ne 0 ]; then
-    sudo -v || die "sudo access is required to install Homebrew (your user must be an Administrator, and you must run via 'bash -c \"\$(curl ...)\"' so the password can be entered)"
-    # Keep the sudo timestamp warm during the (possibly long) install so it
-    # doesn't expire between Homebrew's sudo calls. disown so the shell doesn't
-    # print a "Terminated" job notice when we stop it below.
-    ( while kill -0 "$$" 2>/dev/null; do sudo -n true 2>/dev/null; sleep 50; done ) &
-    _sudo_keepalive=$!
-    disown "$_sudo_keepalive" 2>/dev/null || true
-  fi
+  # Prime sudo once and keep it warm for the rest of the run. Homebrew installs
+  # NONINTERACTIVE (it won't prompt), so it needs a cached sudo credential. This
+  # needs a real terminal: run via `bash -c "$(curl ...)"`, NOT `curl ... | bash`
+  # (a pipe has no TTY). Passwordless sudo (CI/Linux) makes it a no-op.
+  sudo_keep || die "sudo access is required to install Homebrew (your user must be an Administrator, and run via 'bash -c \"\$(curl ...)\"' so the password can be entered)"
   NONINTERACTIVE=1 /bin/bash -c \
     "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" \
     || die "Homebrew install failed"
-  [ -n "${_sudo_keepalive:-}" ] && kill "$_sudo_keepalive" 2>/dev/null
   _load_brew || true   # put the freshly installed brew on PATH for this run
   # Visually separate Homebrew's large output from the rest of the install.
   rule
