@@ -43,9 +43,14 @@ packages:
   - { via: script, name: google-chrome, bin: google-chrome, only: [linux], tags: [app],
       cmd: "sudo apt-get update -qq && curl -fsSL -o /tmp/google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && sudo apt-get install -y /tmp/google-chrome.deb && rm -f /tmp/google-chrome.deb" }
 
-  # Docker Desktop (macOS only; on WSL you use Docker Desktop on Windows).
-  # Swap to 'orbstack' for a lighter, faster Docker Desktop replacement.
-  - { via: cask, name: docker-desktop, only: [macos], tags: [app, dev] }
+  # Docker on macOS via Colima (free/OSS, no licensing). CLI-only: run
+  # `colima start` to bring up the runtime (docker context is set automatically;
+  # `colima start --profile <name>` for per-project/company VMs). On WSL you use
+  # Docker Desktop on Windows instead. (Alternatives: cask 'orbstack' or 'docker-desktop'.)
+  - { via: brew, name: colima,         bin: colima,         only: [macos], tags: [dev] }
+  - { via: brew, name: docker,         bin: docker,         only: [macos], tags: [dev] }  # docker CLI client
+  - { via: brew, name: docker-compose, bin: docker-compose, only: [macos], tags: [dev] }
+  - { via: brew, name: docker-buildx,                       only: [macos], tags: [dev] }
 
 # --- reference (previous full setup) — uncomment what you want ---------------
 #
