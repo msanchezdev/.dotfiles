@@ -34,8 +34,12 @@ packages:
   - { via: brew, name: git-delta, bin: delta,  tags: [git] }    # git pager; configured in git/.gitconfig
   - { via: brew, name: yazi,      bin: yazi,   tags: [cli] }    # file manager; `y` fn in zsh/.zshrc
 
-  # macOS GUI apps (Homebrew casks — macOS only)
-  - { via: cask, name: google-chrome, only: [macos], tags: [app] }
+  # google-chrome — per platform. macOS: cask. Linux (amd64 only; no arm64
+  # build from Google): official .deb, which also wires up Google's apt repo
+  # for future updates.
+  - { via: cask,   name: google-chrome, only: [macos], tags: [app] }
+  - { via: script, name: google-chrome, bin: google-chrome, only: [linux], tags: [app],
+      cmd: "sudo apt-get update -qq && curl -fsSL -o /tmp/google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && sudo apt-get install -y /tmp/google-chrome.deb && rm -f /tmp/google-chrome.deb" }
 
 # --- reference (previous full setup) — uncomment what you want ---------------
 #
