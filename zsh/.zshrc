@@ -31,6 +31,9 @@ alias reload-source='source ~/.zshrc'                  # reload this shell confi
 # Config-only, skip the heavier phases with:  ~/.dotfiles/install.sh stow env
 alias dotup='git -C "$HOME/.dotfiles" pull --ff-only && "$HOME/.dotfiles/install.sh" && source ~/.zshrc'
 
+# pencil-desktop — Linux/WSL only (GPU flags for Vulkan rendering).
+[[ "$OSTYPE" == linux* ]] && alias pencil-desktop="$HOME/.local/bin/pencil-desktop --ignore-gpu-blocklist --enable-features=Vulkan"
+
 # --- functions ---
 # `y`: open yazi, and cd to wherever you quit it. Invoked as `y` — does NOT
 # replace `cd`.
