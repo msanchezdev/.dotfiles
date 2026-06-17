@@ -45,3 +45,10 @@ if [ -L "$HOME/.zshrc" ] || [ -e "$HOME/.zshrc" ]; then
       || warn "chsh failed — run manually: chsh -s $zsh_path"
   fi
 fi
+
+# GitHub SSH: the .gitconfig routes GitHub pushes over SSH, which needs a key
+# registered on this machine. Nudge to set it up with gh if it isn't already.
+if has gh && ! gh auth status >/dev/null 2>&1; then
+  warn "GitHub not set up on this machine. Run: gh auth login  (choose SSH) to"
+  warn "register an SSH key — needed for 'git push' (and 'dotup' if pulling over SSH)."
+fi

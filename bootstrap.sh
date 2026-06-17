@@ -37,16 +37,24 @@ if ! command -v git >/dev/null 2>&1; then
 fi
 
 # 2. Clone (over HTTPS, no auth needed) or update an existing checkout.
-if [ -d "$DEST/.git" ]; then
-  info "Updating $DEST"
-  git -C "$DEST" pull --ff-only || info "skipping update (local changes / diverged)"
-else
+if [ ! -d "$DEST/.git" ]; then
   info "Cloning into $DEST"
   git clone "$REPO_HTTPS" "$DEST"
 fi
 
-# Fetch over HTTPS, but push over SSH (for the owner's own machines).
+# Fetch over HTTPS, push over SSH (for the owner). The HTTPS fetch keeps working
+# even with a global `insteadOf https://github.com/ -> git@github.com:` in your
+# .gitconfig: a repo-local, longer-prefix identity rewrite wins by longest match,
+# so only THIS repo is exempted from the SSH rewrite (no SSH key needed to pull).
+# Set this BEFORE pulling so it self-heals an existing checkout.
+git -C "$DEST" remote set-url origin "$REPO_HTTPS" 2>/dev/null || true
 git -C "$DEST" remote set-url --push origin "$REPO_SSH" 2>/dev/null || true
+git -C "$DEST" config "url.${REPO_HTTPS%.git}.insteadOf" "${REPO_HTTPS%.git}"
+
+if [ -d "$DEST/.git" ]; then
+  info "Updating $DEST"
+  git -C "$DEST" pull --ff-only || info "skipping update (local changes / diverged)"
+fi
 
 # 3. Run the installer, forwarding any args.
 info "Running installer"

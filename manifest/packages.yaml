@@ -28,6 +28,8 @@ packages:
 
   # claude code (native installer -> ~/.local/bin/claude; updates via `claude update`)
   - { via: script, name: claude, bin: claude, cmd: "curl -fsSL https://claude.ai/install.sh | bash", tags: [dev] }
+  # github cli — `gh auth login` (pick SSH) registers this machine's key with GitHub
+  - { via: brew, name: gh, bin: gh, tags: [dev, git] }
 
   # cli tools
   - { via: brew, name: zoxide,    bin: zoxide, tags: [core] }   # `z` smart cd; zsh/.zshrc inits it
