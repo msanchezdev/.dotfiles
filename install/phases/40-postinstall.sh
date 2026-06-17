@@ -52,3 +52,14 @@ if has gh && ! gh auth status >/dev/null 2>&1; then
   warn "GitHub not set up on this machine. Run: gh auth login  (choose SSH) to"
   warn "register an SSH key — needed for 'git push' (and 'dotup' if pulling over SSH)."
 fi
+
+# Seed Colima's default config (resources + Apple Silicon vz/virtiofs/rosetta)
+# if the user hasn't created one yet. Colima manages the file after first start,
+# so only seed when absent (never clobber).
+if [ "$(os_id)" = macos ] && has colima && [ ! -f "$HOME/.colima/default/colima.yaml" ]; then
+  info "seeding Colima default config"
+  mkdir -p "$HOME/.colima/default"
+  cp "$DOTFILES/colima/colima.yaml" "$HOME/.colima/default/colima.yaml" \
+    && ok "colima config (edit ~/.colima/default/colima.yaml to tune)" \
+    || warn "couldn't seed colima config"
+fi

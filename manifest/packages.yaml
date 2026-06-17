@@ -35,6 +35,8 @@ packages:
   - { via: brew, name: zoxide,    bin: zoxide, tags: [core] }   # `z` smart cd; zsh/.zshrc inits it
   - { via: brew, name: git-delta, bin: delta,  tags: [git] }    # git pager; configured in git/.gitconfig
   - { via: brew, name: yazi,      bin: yazi,   tags: [cli] }    # file manager; `y` fn in zsh/.zshrc
+  - { via: brew, name: btop,      bin: btop,   tags: [cli] }    # resource monitor
+  - { via: brew, name: htop,      bin: htop,   tags: [cli] }    # process viewer
 
   # google-chrome — per platform. macOS: cask. Linux (amd64 only; no arm64
   # build from Google): official .deb, which also wires up Google's apt repo
