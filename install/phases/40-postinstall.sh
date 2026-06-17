@@ -21,7 +21,27 @@ else
   skip "nvim not installed"
 fi
 
-# surrealql-nvim is a local dogfood checkout with no git remote, so it can't be
-# auto-cloned. Just flag its absence.
-surql="$HOME/.local/src/surrealql-nvim"
-[ -d "$surql" ] || warn "missing local checkout: $surql (surrealql-nvim plugin will error)"
+# Make zsh the default login shell. The git-cloned oh-my-zsh (unlike the
+# official installer) doesn't run chsh, so a fresh Linux box would stay on bash.
+# Idempotent: a no-op once the login shell is already zsh.
+if [ -L "$HOME/.zshrc" ] || [ -e "$HOME/.zshrc" ]; then
+  zsh_path="$(command -v zsh || true)"
+  current_shell="$(getent passwd "$USER" 2>/dev/null | cut -d: -f7)"
+  [ -z "$current_shell" ] && current_shell="${SHELL:-}"   # macOS has no getent
+  if [ -z "$zsh_path" ]; then
+    skip "zsh not found — leaving default shell"
+  elif [ "$current_shell" = "$zsh_path" ]; then
+    skip "default shell already zsh"
+  elif ! has chsh; then
+    warn "chsh unavailable — set zsh as your login shell manually"
+  else
+    # chsh requires the target shell to be listed in /etc/shells.
+    if ! grep -qx "$zsh_path" /etc/shells 2>/dev/null; then
+      info "adding $zsh_path to /etc/shells (sudo)"
+      echo "$zsh_path" | sudo tee -a /etc/shells >/dev/null 2>&1 || warn "couldn't update /etc/shells"
+    fi
+    info "setting default shell to zsh (chsh may prompt for your password)"
+    chsh -s "$zsh_path" && ok "default shell -> zsh (re-login to take effect)" \
+      || warn "chsh failed — run manually: chsh -s $zsh_path"
+  fi
+fi
