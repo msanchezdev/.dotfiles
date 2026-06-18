@@ -18,6 +18,9 @@ packages:
   - { via: brew, name: fd,      bin: fd, tags: [nvim] }
   # C compiler for nvim-treesitter parser builds (macOS uses the Xcode CLT)
   - { via: apt, name: build-essential, bin: gcc, only: [linux], tags: [nvim] }
+  # tree-sitter CLI — nvim-treesitter (main branch) needs it to install parsers.
+  # (The `tree-sitter` formula is library-only; the CLI is `tree-sitter-cli`.)
+  - { via: brew, name: tree-sitter-cli, bin: tree-sitter, tags: [nvim] }
 
   # tmux + its plugin manager (config in tmux/.tmux.conf loads plugins via tpm)
   - { via: brew, name: tmux, bin: tmux, tags: [core] }
