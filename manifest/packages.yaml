@@ -30,6 +30,8 @@ packages:
   - { via: script, name: claude, bin: claude, cmd: "curl -fsSL https://claude.ai/install.sh | bash", tags: [dev] }
   # github cli — `gh auth login` (pick SSH) registers this machine's key with GitHub
   - { via: brew, name: gh, bin: gh, tags: [dev, git] }
+  # pencil.dev desktop — Linux AppImage -> ~/.local/bin/pencil-desktop, macOS .dmg -> /Applications
+  - { via: script, name: pencil, bin: pencil-desktop, cmd: "bash $DOTFILES/scripts/install-pencil.sh", tags: [app] }
 
   # cli tools
   - { via: brew, name: zoxide,    bin: zoxide, tags: [core] }   # `z` smart cd; zsh/.zshrc inits it
