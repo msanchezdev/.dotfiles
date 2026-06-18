@@ -32,6 +32,9 @@ packages:
   - { via: brew, name: gh, bin: gh, tags: [dev, git] }
   # pencil.dev desktop — Linux AppImage -> ~/.local/bin/pencil-desktop, macOS .dmg -> /Applications
   - { via: script, name: pencil, bin: pencil-desktop, cmd: "bash $DOTFILES/scripts/install-pencil.sh", tags: [app] }
+  # FUSE 2 — AppImages (pencil-desktop) need libfuse.so.2 at runtime. Ubuntu
+  # 24.04 renamed libfuse2 -> libfuse2t64 and doesn't ship it by default.
+  - { via: apt, name: libfuse2t64, only: [linux], tags: [app] }
   # nvm + Node.js LTS (nvm is loaded in zsh/.zshrc). bin: node skips when present.
   - { via: script, name: nodejs, bin: node, cmd: "bash $DOTFILES/scripts/install-node.sh", tags: [dev] }
   # portless — named .localhost dev URLs (proxy); env vars in zsh/.zshrc
