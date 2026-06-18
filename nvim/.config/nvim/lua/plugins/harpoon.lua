@@ -29,8 +29,6 @@ return {
     end, { desc = 'Harpoon: open window' })
 
     group('Harpoon', function(m)
-      m.normal('<leader>a', function() harpoon:list():add() end, 'Add file') -- (added; old config had no add map)
-
       local function harpoon_select(n)
         return function() harpoon:list():select(n) end
       end
