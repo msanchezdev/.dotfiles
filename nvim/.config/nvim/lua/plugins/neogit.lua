@@ -1,24 +1,18 @@
--- DISABLED reference from your previous config.
--- To re-enable: uncomment the spec below and delete the trailing 'return {}'.
--- (Note: old keymaps used custom group()/m.* helpers that no longer exist —
---  adapt them to vim.keymap.set when reviving.)
---
--- return {
---   'NeogitOrg/neogit',
---   dependencies = {
---     'nvim-lua/plenary.nvim',
---     'sindrets/diffview.nvim',
---   },
---   opts = {
---     enchaned_diff_hl = true,
---   },
---   config = function()
---     vim.opt.fillchars:append({ diff = '/' })
--- 
---     group('Neogit', function(m)
---       m.normal('<leader>gg', '<cmd>Neogit<cr>')
---     end)
---   end
--- }
-
-return {}
+-- neogit: a Magit-style git interface (<leader>gg).
+return {
+  'NeogitOrg/neogit',
+  dependencies = {
+    'nvim-lua/plenary.nvim',
+    'sindrets/diffview.nvim',
+  },
+  cmd = 'Neogit',
+  keys = {
+    { '<leader>gg', '<cmd>Neogit<cr>', desc = 'Neogit' },
+  },
+  opts = {
+    enhanced_diff_hl = true, -- (was misspelled 'enchaned_diff_hl' in the old config)
+  },
+  init = function()
+    vim.opt.fillchars:append({ diff = '/' })
+  end,
+}
