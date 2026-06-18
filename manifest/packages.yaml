@@ -32,6 +32,8 @@ packages:
   - { via: brew, name: gh, bin: gh, tags: [dev, git] }
   # pencil.dev desktop — Linux AppImage -> ~/.local/bin/pencil-desktop, macOS .dmg -> /Applications
   - { via: script, name: pencil, bin: pencil-desktop, cmd: "bash $DOTFILES/scripts/install-pencil.sh", tags: [app] }
+  # nvm + Node.js LTS (nvm is loaded in zsh/.zshrc). bin: node skips when present.
+  - { via: script, name: nodejs, bin: node, cmd: "bash $DOTFILES/scripts/install-node.sh", tags: [dev] }
 
   # cli tools
   - { via: brew, name: zoxide,    bin: zoxide, tags: [core] }   # `z` smart cd; zsh/.zshrc inits it
