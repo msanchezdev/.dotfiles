@@ -57,11 +57,16 @@ platform_match() {
 DOTFILES_STATE_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles"
 PROFILE_FILE="$DOTFILES_STATE_DIR/profile"
 
-# Resolve the active device profile. The profile file is gitignored and names
-# this machine; on first run we seed it from the hostname so the script stays
-# non-interactive. Edit ~/.config/dotfiles/profile to rename a device.
+# Resolve the active device profile. Precedence: $DOTFILES_PROFILE env (lets the
+# bootstrap name the profile, e.g. DOTFILES_PROFILE=work) > the gitignored
+# profile file > a hostname seed (so first run stays non-interactive). Edit
+# ~/.config/dotfiles/profile (or use `dotprofile rename`) to change it later.
 resolve_profile() {
-  if [ -f "$PROFILE_FILE" ]; then
+  if [ -n "${DOTFILES_PROFILE:-}" ]; then
+    PROFILE="$DOTFILES_PROFILE"
+    mkdir -p "$DOTFILES_STATE_DIR"
+    printf '%s\n' "$PROFILE" > "$PROFILE_FILE"
+  elif [ -f "$PROFILE_FILE" ]; then
     PROFILE="$(tr -d '[:space:]' < "$PROFILE_FILE")"
   fi
   if [ -z "${PROFILE:-}" ]; then

@@ -14,7 +14,9 @@
 #   bash -c "$(curl -fsSL https://dotfiles.msanchez.dev/install)" -- bootstrap
 #
 # Env knobs:
-#   DOTFILES_DIR   where the repo lives (default: ~/git/github.com/msanchezdev/.dotfiles)
+#   DOTFILES_DIR       where the repo lives (default: ~/git/github.com/msanchezdev/.dotfiles)
+#   DOTFILES_PROFILE   name this machine's profile on first run, e.g.
+#                      DOTFILES_PROFILE=work bash -c "$(curl -fsSL .../install)"
 #
 # The repo is cloned into a structured ~/git/<host>/<owner>/<repo> path; a
 # ~/.dotfiles symlink points at it so everything (install.sh, dotup, stow) keeps
