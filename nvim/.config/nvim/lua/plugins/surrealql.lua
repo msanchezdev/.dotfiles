@@ -1,26 +1,42 @@
--- SurrealQL LSP: diagnostics, hover, completion, rename, go-to-def/refs, and
--- parser-accurate semantic-token highlighting.
+-- SurrealQL for .surql/.surrealql: tree-sitter highlighting (offline, instant)
+-- + language server (semantic tokens, diagnostics, hover, completion, refs,
+-- rename, …). Both stack — see surrealdb/surrealql-lsp-neovim-setup.md.
 --
--- Upstream now has the fixes (binary name, grammar branch, and "don't error on
--- nvim-treesitter main"), so we track surrealdb/surrealql-neovim directly.
---
--- The language server is a prebuilt binary the plugin downloads on first use
--- (no Rust toolchain); :SurrealQLInstall forces it.
---
--- treesitter stays off: surrealql parser registration uses nvim-treesitter's
--- master API, which our nvim-treesitter (main) doesn't expose — the plugin
--- skips it cleanly. The LSP's semantic tokens highlight .surql meanwhile.
+-- The plugin (PR #10) registers the grammar on nvim-treesitter main *and*
+-- master and ships matching queries; the LSP binary auto-downloads on first
+-- .surql open (cargo fallback if no prebuilt binary). Highlighting itself is
+-- started per-buffer in ftplugin/surrealql.lua.
 return {
   'surrealdb/surrealql-neovim',
   ft = { 'surrealql' },
-  main = 'surrealql',
-  -- Map .surql/.surrealql to the surrealql filetype early, so opening one
-  -- triggers the ft-based lazy load reliably.
+  dependencies = { 'nvim-treesitter/nvim-treesitter' },
+  -- Map the extensions early so the ft-based lazy load triggers on open.
   init = function()
     vim.filetype.add({ extension = { surql = 'surrealql', surrealql = 'surrealql' } })
   end,
   opts = {
-    treesitter = { enable = false },
-    lsp = { enable = true, auto_install = true },
+    treesitter = { enable = true }, -- register the parser (default true)
+    lsp = { enable = true },        -- download + attach the server (auto_install defaults true)
   },
+  config = function(_, opts)
+    require('surrealql').setup(opts) -- registers the parser + sets up the LSP
+
+    -- setup() just registered the parser; install it once (async). Needs the
+    -- tree-sitter CLI + a C compiler — both are in the manifest.
+    pcall(function()
+      local nts = require('nvim-treesitter')
+      if not vim.tbl_contains(nts.get_installed(), 'surrealql') then
+        nts.install({ 'surrealql' })
+      end
+    end)
+
+    -- Make the LSP's definition/builtin semantic-token modifiers pop
+    -- (re-applied on colorscheme change).
+    local function hl()
+      vim.api.nvim_set_hl(0, '@lsp.typemod.function.defaultLibrary', { link = 'Comment' }) -- greyed stdlib
+      vim.api.nvim_set_hl(0, '@lsp.mod.declaration', { bold = true })                       -- bold defs
+    end
+    hl()
+    vim.api.nvim_create_autocmd('ColorScheme', { callback = hl })
+  end,
 }
