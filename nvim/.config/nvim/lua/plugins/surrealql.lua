@@ -1,19 +1,17 @@
 -- SurrealQL LSP: diagnostics, hover, completion, rename, go-to-def/refs, and
 -- parser-accurate semantic-token highlighting.
 --
--- Using the fork branch until the upstream fix lands; once merged, switch to
---   'surrealdb/surrealql-neovim'  (drop branch).
+-- Upstream now has the fixes (binary name, grammar branch, and "don't error on
+-- nvim-treesitter main"), so we track surrealdb/surrealql-neovim directly.
 --
 -- The language server is a prebuilt binary the plugin downloads on first use
--- (linux x86_64/arm64, macOS arm64, Windows x86_64) — no Rust toolchain.
--- :SurrealQLInstall forces the download.
+-- (no Rust toolchain); :SurrealQLInstall forces it.
 --
--- treesitter is OFF here: the LSP's semantic tokens already highlight. To add
--- the tree-sitter grammar too, install nvim-treesitter, set treesitter.enable
--- = true, and run :TSInstall surrealql.
+-- treesitter stays off: surrealql parser registration uses nvim-treesitter's
+-- master API, which our nvim-treesitter (main) doesn't expose — the plugin
+-- skips it cleanly. The LSP's semantic tokens highlight .surql meanwhile.
 return {
-  'msanchezdev/surrealql-neovim',
-  branch = 'fix/lsp-binary-name-and-docs',
+  'surrealdb/surrealql-neovim',
   ft = { 'surrealql' },
   main = 'surrealql',
   -- Map .surql/.surrealql to the surrealql filetype early, so opening one
