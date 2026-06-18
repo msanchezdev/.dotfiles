@@ -16,6 +16,10 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
 
+# --- portless (named .localhost dev URLs) ---
+export PORTLESS_STATE_DIR="$HOME/.portless"
+export PORTLESS_WILDCARD=1
+
 # --- oh-my-zsh (installed by the manifest into ~/.oh-my-zsh) ---
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="robbyrussell"
