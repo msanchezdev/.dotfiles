@@ -49,11 +49,17 @@ packages:
   - { via: script, name: nodejs, bin: node, cmd: "bash $DOTFILES/scripts/install-node.sh", tags: [dev] }
   # portless — named .localhost dev URLs (proxy); env vars in zsh/.zshrc
   - { via: bun, name: portless, bin: portless, tags: [dev] }
-  # surrealdb — `surreal` CLI/server (prebuilt binary). The installer drops it in
-  # /usr/local/bin if writable, else ~/.surrealdb; symlink that onto PATH.
-  # (Passing an install dir to the script trips a shift bug, so don't.)
-  - { via: script, name: surrealdb, bin: surreal, tags: [dev, db],
+  # surrealdb — `surreal` CLI/server.
+  #   macOS: Homebrew tap (downloads the prebuilt darwin-universal binary).
+  #   Linux: official prebuilt-binary installer — drops it in /usr/local/bin if
+  #   writable, else ~/.surrealdb; symlink that onto PATH. (Passing an install
+  #   dir to the script trips a shift bug, so we don't.)
+  - { via: brew,   name: "surrealdb/tap/surreal", bin: surreal, only: [macos], tags: [dev, db] }
+  - { via: script, name: surrealdb, bin: surreal, only: [linux], tags: [dev, db],
       cmd: "curl -sSf https://install.surrealdb.com | sh && { command -v surreal >/dev/null 2>&1 || { mkdir -p \"$HOME/.local/bin\" && ln -sf \"$HOME/.surrealdb/surreal\" \"$HOME/.local/bin/surreal\"; }; }" }
+  # surrealist — SurrealDB GUI (macOS .dmg from GitHub releases, no cask)
+  - { via: script, name: surrealist, only: [macos], tags: [app, db],
+      cmd: "bash $DOTFILES/scripts/install-surrealist.sh" }
 
   # cli tools
   - { via: brew, name: zoxide,    bin: zoxide, tags: [core] }   # `z` smart cd; zsh/.zshrc inits it
