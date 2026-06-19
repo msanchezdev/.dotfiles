@@ -53,19 +53,8 @@ if has gh && ! gh auth status >/dev/null 2>&1; then
   warn "register an SSH key — needed for 'git push' (and 'dotup' if pulling over SSH)."
 fi
 
-# Rosetta 2 — the seeded Colima config uses `rosetta: true` to run amd64 images
-# on Apple Silicon; without Rosetta installed, `colima start` hangs waiting for
-# the VM. Install it (Apple Silicon + colima only). Idempotent: the arch check
-# skips when it's already present.
-if [ "$(os_id)" = macos ] && [ "$(uname -m)" = arm64 ] && has colima; then
-  if /usr/bin/arch -x86_64 /usr/bin/true >/dev/null 2>&1; then
-    skip "Rosetta present"
-  else
-    info "installing Rosetta 2 (for amd64 images under Colima)"
-    softwareupdate --install-rosetta --agree-to-license >/dev/null 2>&1 \
-      && ok "Rosetta 2" || warn "Rosetta install failed — run: softwareupdate --install-rosetta --agree-to-license"
-  fi
-fi
+# (Rosetta 2 is installed by the manifest — `rosetta` script entry — so it's in
+# place before this seeds the rosetta: true Colima config.)
 
 # Seed Colima's default config (resources + Apple Silicon vz/virtiofs/rosetta)
 # if the user hasn't created one yet. Colima manages the file after first start,
