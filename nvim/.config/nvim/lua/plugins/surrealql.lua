@@ -8,11 +8,14 @@
 -- started per-buffer in ftplugin/surrealql.lua.
 return {
   'surrealdb/surrealql-neovim',
-  -- Also load for JS/TS filetypes so the plugin's after/queries/*/injections.scm
-  -- land on the runtimepath there — that's what highlights surql`...` template
-  -- literals. With only 'surrealql' the plugin never loads in those buffers and
-  -- the injection silently does nothing (the README's snippet has this gap).
-  ft = { 'surrealql', 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
+  -- Load at startup (NOT ft-lazy). The surql`...` JS/TS injection lives in the
+  -- plugin's after/queries/{javascript,typescript,tsx}/injections.scm, which
+  -- must be on the runtimepath BEFORE the treesitter highlighter first reads
+  -- the 'typescript'/'javascript' injections query — that query is memoized for
+  -- the whole session, so if the plugin loads even a tick late (ft-lazy loses
+  -- this race to the highlighter's redraw), the surrealql injection is missing
+  -- permanently. Loading eagerly puts the queries on rtp up front.
+  lazy = false,
   dependencies = { 'nvim-treesitter/nvim-treesitter' },
   -- Map the extensions early so the ft-based lazy load triggers on open.
   init = function()
