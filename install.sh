@@ -22,6 +22,7 @@ source "$DOTFILES/install/lib.sh"
 source "$DOTFILES/install/installers.sh"
 
 resolve_profile
+log_init
 printf '%sdotfiles%s · profile %s%s%s · %s\n' \
   "$_C_BOLD" "$_C_RESET" "$_C_BOLD" "$PROFILE" "$_C_RESET" "$(os_id)$(is_wsl && echo '/wsl')"
 
@@ -48,3 +49,4 @@ fi
 
 step "Done"
 info "Restart your shell or: source ~/.config/dotfiles/env.sh"
+info "Full log: $LOG_FILE"

@@ -31,7 +31,7 @@ install_brew() {
     skip "$name (brew, already installed)"; return
   fi
   info "brew install $name"
-  _brew install "$name" && ok "$name" || warn "failed: brew install $name"
+  _run "brew install $name" _brew install "$name" && ok "$name" || warn "failed: brew install $name (see log)"
 }
 
 # install_bun <name> <bin>
@@ -39,7 +39,7 @@ install_bun() {
   local name="$1" bin="$2"
   [ -n "$bin" ] && has "$bin" && { skip "$name (bun, $bin present)"; return; }
   info "bun add -g $name"
-  bun add -g "$name" >/dev/null 2>&1 && ok "$name" || warn "failed: bun add -g $name"
+  _run "bun add -g $name" bun add -g "$name" && ok "$name" || warn "failed: bun add -g $name (see log)"
 }
 
 # install_npm <name> <bin>
@@ -47,7 +47,7 @@ install_npm() {
   local name="$1" bin="$2"
   [ -n "$bin" ] && has "$bin" && { skip "$name (npm, $bin present)"; return; }
   info "npm install -g $name"
-  npm install -g "$name" >/dev/null 2>&1 && ok "$name" || warn "failed: npm install -g $name"
+  _run "npm install -g $name" npm install -g "$name" && ok "$name" || warn "failed: npm install -g $name (see log)"
 }
 
 # Refresh apt's package lists at most once per run — a fresh machine (or a
@@ -57,7 +57,7 @@ _apt_update_once() {
   [ -n "$_APT_UPDATED" ] && return
   sudo_keep || true
   info "apt-get update"
-  sudo apt-get update -qq >/dev/null 2>&1 || warn "apt-get update failed"
+  _run "apt-get update" sudo apt-get update -qq || warn "apt-get update failed (see log)"
   _APT_UPDATED=1
 }
 
@@ -68,7 +68,7 @@ install_apt() {
   if dpkg -s "$name" >/dev/null 2>&1; then skip "$name (apt, installed)"; return; fi
   _apt_update_once
   info "apt-get install $name"
-  sudo apt-get install -y "$name" >/dev/null 2>&1 && ok "$name" || warn "failed: apt-get install $name"
+  _run "apt-get install $name" sudo apt-get install -y "$name" && ok "$name" || warn "failed: apt-get install $name (see log)"
 }
 
 # install_git <name> <repo> <dest>
@@ -80,7 +80,7 @@ install_git() {
   fi
   if [ -d "$dest/.git" ]; then skip "$name (git, cloned at $dest)"; return; fi
   info "git clone $repo -> $dest"
-  git clone --depth 1 "$repo" "$dest" >/dev/null 2>&1 && ok "$name" || warn "failed: git clone $repo"
+  _run "git clone $repo" git clone --depth 1 "$repo" "$dest" && ok "$name" || warn "failed: git clone $repo (see log)"
 }
 
 # install_script <name> <bin> <cmd>
@@ -91,7 +91,7 @@ install_script() {
   [ -n "$bin" ] && has "$bin" && { skip "$name (script, $bin present)"; return; }
   if [ -z "$cmd" ]; then warn "script package '$name' needs a cmd in the manifest"; return; fi
   info "installing $name via its script"
-  bash -c "$cmd" >/dev/null 2>&1 && ok "$name" || warn "failed: install script for $name"
+  _run "script: $name" bash -c "$cmd" && ok "$name" || warn "failed: install script for $name (see log)"
 }
 
 # install_cask <name>
@@ -102,7 +102,7 @@ install_cask() {
   has brew || { warn "brew missing — can't install cask $name"; return; }
   if brew list --cask "$name" >/dev/null 2>&1; then skip "$name (cask, installed)"; return; fi
   info "brew install --cask $name"
-  _brew install --cask "$name" >/dev/null 2>&1 && ok "$name" || warn "failed: brew install --cask $name"
+  _run "brew install --cask $name" _brew install --cask "$name" && ok "$name" || warn "failed: brew install --cask $name (see log)"
 }
 
 # Route one manifest row to the right installer.

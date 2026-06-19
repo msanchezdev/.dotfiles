@@ -17,6 +17,26 @@ skip() { printf '    %s·%s %s%s%s\n' "$_C_DIM" "$_C_RESET" "$_C_DIM" "$*" "$_C_
 warn() { printf '    %s!%s %s\n' "$_C_YELLOW" "$_C_RESET" "$*" >&2; }
 die()  { printf '%sError:%s %s\n' "$_C_RED$_C_BOLD" "$_C_RESET" "$*" >&2; exit 1; }
 
+# --- logging ---------------------------------------------------------------
+# Installer command output is verbose and usually irrelevant — until something
+# fails. Send it to a logfile so the terminal keeps the ok/skip/warn summary but
+# failures are diagnosable (tail the log to see what actually went wrong).
+LOG_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/install.log"
+
+log_init() {
+  mkdir -p "$(dirname "$LOG_FILE")" 2>/dev/null || true
+  printf '\n========== install run %s ==========\n' "$(date '+%Y-%m-%d %H:%M:%S')" \
+    >> "$LOG_FILE" 2>/dev/null || true
+}
+
+# _run <label> <command...> — append a header + the command's combined output to
+# the log; returns the command's exit status. Use as: _run … && ok … || warn …
+_run() {
+  local label="$1"; shift
+  printf '\n$ %s\n' "$label" >> "$LOG_FILE" 2>/dev/null || true
+  "$@" >> "$LOG_FILE" 2>&1
+}
+
 # --- predicates ------------------------------------------------------------
 has() { command -v "$1" >/dev/null 2>&1; }
 
