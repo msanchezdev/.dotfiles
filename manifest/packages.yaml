@@ -21,6 +21,11 @@ packages:
   # tree-sitter CLI — nvim-treesitter (main branch) needs it to install parsers.
   # (The `tree-sitter` formula is library-only; the CLI is `tree-sitter-cli`.)
   - { via: brew, name: tree-sitter-cli, bin: tree-sitter, tags: [nvim] }
+  # LSP servers (enabled in nvim/.config/nvim/lua/plugins/lsp.lua)
+  - { via: brew, name: lua-language-server, bin: lua-language-server, tags: [nvim, lsp] }      # lua_ls
+  - { via: bun,  name: "@typescript/native-preview", bin: tsgo, tags: [nvim, lsp] }            # tsgo (ts/js)
+  - { via: bun,  name: vscode-langservers-extracted, bin: vscode-json-language-server, tags: [nvim, lsp] }  # jsonls
+  - { via: bun,  name: yaml-language-server, bin: yaml-language-server, tags: [nvim, lsp] }    # yamlls
 
   # tmux + its plugin manager (config in tmux/.tmux.conf loads plugins via tpm)
   - { via: brew, name: tmux, bin: tmux, tags: [core] }
