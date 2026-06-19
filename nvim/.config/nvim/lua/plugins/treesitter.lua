@@ -1,27 +1,24 @@
--- nvim-treesitter (main branch — the rewrite, for Neovim 0.11+). Installs a
--- base parser set and starts native tree-sitter highlighting per filetype.
--- Parsers compile locally, so a C compiler is needed (build-essential on Linux
--- is in the manifest; macOS uses the Xcode CLT).
+-- nvim-treesitter (master branch — the classic API). configs.setup enables
+-- highlighting + indentation for installed parsers and auto-installs parsers
+-- for opened filetypes. Parsers compile locally (needs a C compiler — Linux
+-- build-essential is in the manifest; macOS uses the Xcode CLT).
+--
+-- On master (not main) because master's highlight engine renders tagged-template
+-- injections (e.g. surql`...` in JS/TS); native injection on the main branch +
+-- Neovim 0.12 does not build the injected tree.
 return {
   'nvim-treesitter/nvim-treesitter',
-  lazy = false,           -- main branch does not support lazy-loading
+  branch = 'master',
   build = ':TSUpdate',
   config = function()
-    local nts = require('nvim-treesitter')
-    local ensure = {
-      'lua', 'vim', 'vimdoc', 'bash', 'json', 'yaml', 'toml',
-      'markdown', 'markdown_inline', 'javascript', 'typescript', 'tsx', 'html', 'css',
-    }
-    local installed = nts.get_installed()
-    local missing = vim.tbl_filter(function(l)
-      return not vim.tbl_contains(installed, l)
-    end, ensure)
-    if #missing > 0 then nts.install(missing) end
-
-    -- Start tree-sitter highlighting for any buffer whose language has a parser.
-    vim.api.nvim_create_autocmd('FileType', {
-      group = vim.api.nvim_create_augroup('treesitter.highlight', { clear = true }),
-      callback = function() pcall(vim.treesitter.start) end,
+    require('nvim-treesitter.configs').setup({
+      ensure_installed = {
+        'lua', 'vim', 'vimdoc', 'bash', 'json', 'yaml', 'toml',
+        'markdown', 'markdown_inline', 'javascript', 'typescript', 'tsx', 'html', 'css',
+      },
+      auto_install = true,
+      highlight = { enable = true },
+      indent = { enable = true },
     })
   end,
 }

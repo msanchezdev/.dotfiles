@@ -28,13 +28,10 @@ return {
   config = function(_, opts)
     require('surrealql').setup(opts) -- registers the parser + sets up the LSP
 
-    -- setup() just registered the parser; install it once (async). Needs the
-    -- tree-sitter CLI + a C compiler — both are in the manifest.
+    -- setup() just registered the parser; ensure it's installed (nvim-treesitter
+    -- master API). Needs a C compiler — in the manifest.
     pcall(function()
-      local nts = require('nvim-treesitter')
-      if not vim.tbl_contains(nts.get_installed(), 'surrealql') then
-        nts.install({ 'surrealql' })
-      end
+      require('nvim-treesitter.install').ensure_installed('surrealql')
     end)
 
     -- Make the LSP's definition/builtin semantic-token modifiers pop
