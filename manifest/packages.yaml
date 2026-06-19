@@ -92,6 +92,13 @@ packages:
   - { via: brew, name: docker-compose, bin: docker-compose, only: [macos], tags: [dev] }
   - { via: brew, name: docker-buildx,                       only: [macos], tags: [dev] }
 
+  # Xcode + iOS Simulator (macOS). `xcodes` manages Xcode versions; `aria2`
+  # gives it faster parallel downloads. Installing Xcode itself needs your Apple
+  # ID, so run `xcodes install --latest` yourself; postinstall then accepts the
+  # license and fetches the iOS simulator runtime once Xcode is present.
+  - { via: brew, name: xcodes, bin: xcodes, only: [macos], tags: [dev, ios] }
+  - { via: brew, name: aria2,  bin: aria2c, only: [macos], tags: [dev, ios] }
+
 # --- reference (previous full setup) — uncomment what you want ---------------
 #
 #   # core CLI / editor   (stow/yq/jq/bun are bootstrap-managed, not listed here)

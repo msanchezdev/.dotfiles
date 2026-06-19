@@ -95,3 +95,22 @@ if { [ "$(os_id)" = linux ] && [ -x /usr/sbin/sshd ]; } || [ "$(os_id)" = macos 
     warn "ssh server: needs sudo — skipped"
   fi
 fi
+
+# Xcode + iOS Simulator (macOS). Installing Xcode needs your Apple ID, so we
+# only nudge for that; once full Xcode is selected we accept the license and
+# fetch the iOS simulator runtime (a few GB, one-time).
+if [ "$(os_id)" = macos ]; then
+  if xcode-select -p 2>/dev/null | grep -q 'Xcode.app'; then
+    sudo_keep && sudo xcodebuild -license accept >/dev/null 2>&1 && ok "Xcode license accepted" || true
+    if xcrun simctl list runtimes 2>/dev/null | grep -qi 'iOS'; then
+      skip "iOS simulator runtime present"
+    else
+      info "downloading iOS simulator runtime (several GB)…"
+      xcodebuild -downloadPlatform iOS >/dev/null 2>&1 \
+        && ok "iOS simulator runtime" || warn "run: xcodebuild -downloadPlatform iOS"
+    fi
+  elif has xcodes; then
+    warn "Xcode not installed — run: xcodes install --latest  (signs in with your Apple ID),"
+    warn "then re-run dotup to accept the license and fetch the iOS simulator."
+  fi
+fi
