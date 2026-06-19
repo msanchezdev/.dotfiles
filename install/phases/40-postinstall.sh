@@ -66,3 +66,32 @@ if [ "$(os_id)" = macos ] && has colima && [ ! -f "$HOME/.colima/default/colima.
     && ok "colima config (edit ~/.colima/default/colima.yaml to tune)" \
     || warn "couldn't seed colima config"
 fi
+
+# SSH server (key-only, reached over Tailscale). Drop the hardening config into
+# /etc/ssh/sshd_config.d/ and enable sshd. Linux: openssh-server (manifest) +
+# systemd/service; macOS: built-in sshd via Remote Login. Needs sudo.
+_sshd_conf="$DOTFILES/etc/ssh/sshd_config.d/10-dotfiles-hardening.conf"
+if { [ "$(os_id)" = linux ] && [ -x /usr/sbin/sshd ]; } || [ "$(os_id)" = macos ]; then
+  if sudo_keep; then
+    info "configuring ssh server (key-only)"
+    sudo mkdir -p /etc/ssh/sshd_config.d
+    sudo install -m 0644 "$_sshd_conf" /etc/ssh/sshd_config.d/ \
+      && ok "sshd key-only config" || warn "couldn't write /etc/ssh/sshd_config.d/"
+    [ -s "$HOME/.ssh/authorized_keys" ] \
+      || warn "no ~/.ssh/authorized_keys — add your public key or key-only SSH will lock you out"
+    if [ "$(os_id)" = macos ]; then
+      if sudo systemsetup -setremotelogin on >/dev/null 2>&1; then
+        ok "Remote Login on"
+        sudo launchctl kickstart -k system/com.openssh.sshd >/dev/null 2>&1 || true
+      else
+        warn "enable Remote Login: System Settings > General > Sharing (systemsetup needs Full Disk Access)"
+      fi
+    else
+      if   sudo systemctl enable --now ssh 2>/dev/null; then ok "sshd enabled (systemd)"
+      elif sudo service ssh restart       2>/dev/null; then ok "sshd running (service)"
+      else warn "start sshd manually: sudo service ssh start"; fi
+    fi
+  else
+    warn "ssh server: needs sudo — skipped"
+  fi
+fi

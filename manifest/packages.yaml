@@ -62,6 +62,11 @@ packages:
   - { via: brew, name: btop,      bin: btop,   tags: [cli] }    # resource monitor
   - { via: brew, name: htop,      bin: htop,   tags: [cli] }    # process viewer
 
+  # SSH server — Linux only (macOS has sshd built-in; enabled via Remote Login
+  # in postinstall). Hardened to key-only in etc/ssh/sshd_config.d/, enabled in
+  # postinstall. Reached over the Tailscale network.
+  - { via: apt, name: openssh-server, only: [linux], tags: [ssh] }
+
   # google-chrome — per platform. macOS: cask. Linux (amd64 only; no arm64
   # build from Google): official .deb, which also wires up Google's apt repo
   # for future updates.
