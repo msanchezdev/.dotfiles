@@ -85,10 +85,17 @@ install_git() {
 
 # install_script <name> <bin> <cmd>
 # For tools with their own curl|bash installer (e.g. claude). `cmd` runs only
-# when `bin` is absent, so it never reinstalls/updates on re-runs.
+# when `bin` is absent, so it never reinstalls/updates on re-runs. `bin` is a
+# command name (checked with command -v) — OR an absolute path (checked for
+# existence), e.g. /Applications/Foo.app for a macOS GUI app with no CLI.
 install_script() {
   local name="$1" bin="$2" cmd="$3"
-  [ -n "$bin" ] && has "$bin" && { skip "$name (script, $bin present)"; return; }
+  if [ -n "$bin" ]; then
+    case "$bin" in
+      /*) [ -e "$bin" ] && { skip "$name (script, $bin present)"; return; } ;;
+      *)  has "$bin"    && { skip "$name (script, $bin present)"; return; } ;;
+    esac
+  fi
   if [ -z "$cmd" ]; then warn "script package '$name' needs a cmd in the manifest"; return; fi
   info "installing $name via its script"
   _run "script: $name" bash -c "$cmd" && ok "$name" || warn "failed: install script for $name (see log)"

@@ -40,8 +40,11 @@ packages:
   - { via: script, name: claude, bin: claude, cmd: "curl -fsSL https://claude.ai/install.sh | bash", tags: [dev] }
   # github cli — `gh auth login` (pick SSH) registers this machine's key with GitHub
   - { via: brew, name: gh, bin: gh, tags: [dev, git] }
-  # pencil.dev desktop — Linux AppImage -> ~/.local/bin/pencil-desktop, macOS .dmg -> /Applications
-  - { via: script, name: pencil, bin: pencil-desktop, cmd: "bash $DOTFILES/scripts/install-pencil.sh", tags: [app] }
+  # pencil.dev desktop — Linux AppImage -> ~/.local/bin/pencil-desktop, macOS .dmg
+  # -> /Applications. Same script; per-platform idempotency check (CLI bin on
+  # Linux, the .app path on macOS).
+  - { via: script, name: pencil, bin: pencil-desktop,           only: [linux], cmd: "bash $DOTFILES/scripts/install-pencil.sh", tags: [app] }
+  - { via: script, name: pencil, bin: /Applications/Pencil.app, only: [macos], cmd: "bash $DOTFILES/scripts/install-pencil.sh", tags: [app] }
   # FUSE 2 — AppImages (pencil-desktop) need libfuse.so.2 at runtime. Ubuntu
   # 24.04 renamed libfuse2 -> libfuse2t64 and doesn't ship it by default.
   - { via: apt, name: libfuse2t64, only: [linux], tags: [app] }
@@ -58,7 +61,7 @@ packages:
   - { via: script, name: surrealdb, bin: surreal, only: [linux], tags: [dev, db],
       cmd: "curl -sSf https://install.surrealdb.com | sh && { command -v surreal >/dev/null 2>&1 || { mkdir -p \"$HOME/.local/bin\" && ln -sf \"$HOME/.surrealdb/surreal\" \"$HOME/.local/bin/surreal\"; }; }" }
   # surrealist — SurrealDB GUI (macOS .dmg from GitHub releases, no cask)
-  - { via: script, name: surrealist, only: [macos], tags: [app, db],
+  - { via: script, name: surrealist, bin: /Applications/Surrealist.app, only: [macos], tags: [app, db],
       cmd: "bash $DOTFILES/scripts/install-surrealist.sh" }
 
   # cli tools
