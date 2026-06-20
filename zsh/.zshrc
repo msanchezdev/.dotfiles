@@ -43,6 +43,12 @@ alias dotup='git -C "$HOME/.dotfiles" pull --ff-only && "$HOME/.dotfiles/install
 # pencil-desktop — Linux/WSL only (GPU flags for Vulkan rendering).
 [[ "$OSTYPE" == linux* ]] && alias pencil-desktop="$HOME/.local/bin/pencil-desktop --ignore-gpu-blocklist --enable-features=Vulkan"
 
+# macOS app launchers — open the installed .app from the terminal.
+if [[ "$OSTYPE" == darwin* ]]; then
+  alias pencil='open -a Pencil'
+  alias surrealist='open -a Surrealist'
+fi
+
 # dotprofile — manage the device profile (rename/copy per-profile files):
 #   dotprofile                      show current   dotprofile rename <new>        move
 #   dotprofile rename <new> --copy  copy & switch
