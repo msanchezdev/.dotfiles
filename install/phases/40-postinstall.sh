@@ -7,7 +7,7 @@ step "Post-install"
 tpm_dir="$HOME/.tmux/plugins/tpm"
 if [ -x "$tpm_dir/bin/install_plugins" ]; then
   info "installing tmux plugins"
-  "$tpm_dir/bin/install_plugins" >/dev/null 2>&1 && ok "tmux plugins" || warn "tpm install failed"
+  _run "tmux plugins (tpm)" "$tpm_dir/bin/install_plugins" && ok "tmux plugins" || warn "tpm install failed (see log)"
 else
   skip "tpm not present (added by manifest git package)"
 fi
@@ -15,8 +15,8 @@ fi
 # Neovim: sync lazy.nvim plugins (also triggers treesitter/LSP builds on first run).
 if has nvim; then
   info "syncing neovim plugins (headless, may take a minute)"
-  nvim --headless "+Lazy! sync" +qa >/dev/null 2>&1 && ok "neovim plugins" \
-    || warn "nvim plugin sync had issues — open nvim and run :Lazy"
+  _run "neovim plugins (Lazy sync)" nvim --headless "+Lazy! sync" +qa && ok "neovim plugins" \
+    || warn "nvim plugin sync had issues (see log) — open nvim and run :Lazy"
 else
   skip "nvim not installed"
 fi
@@ -80,7 +80,7 @@ if { [ "$(os_id)" = linux ] && [ -x /usr/sbin/sshd ]; } || [ "$(os_id)" = macos 
     [ -s "$HOME/.ssh/authorized_keys" ] \
       || warn "no ~/.ssh/authorized_keys — add your public key or key-only SSH will lock you out"
     if [ "$(os_id)" = macos ]; then
-      if sudo systemsetup -setremotelogin on >/dev/null 2>&1; then
+      if _run "ssh: enable Remote Login" sudo systemsetup -setremotelogin on; then
         ok "Remote Login on"
         sudo launchctl kickstart -k system/com.openssh.sshd >/dev/null 2>&1 || true
       else
@@ -106,8 +106,8 @@ if [ "$(os_id)" = macos ]; then
       skip "iOS simulator runtime present"
     else
       info "downloading iOS simulator runtime (several GB)…"
-      xcodebuild -downloadPlatform iOS >/dev/null 2>&1 \
-        && ok "iOS simulator runtime" || warn "run: xcodebuild -downloadPlatform iOS"
+      _run "iOS simulator runtime" xcodebuild -downloadPlatform iOS \
+        && ok "iOS simulator runtime" || warn "run: xcodebuild -downloadPlatform iOS (see log)"
     fi
   elif has xcodes; then
     warn "Xcode not installed — run: xcodes install --latest  (signs in with your Apple ID),"
