@@ -50,6 +50,16 @@ if [[ "$OSTYPE" == darwin* ]]; then
   alias surrealist='open -a Surrealist'
 fi
 
+# WSL: Surrealist runs as the Windows app — launch its .exe from the terminal.
+if [[ -n "$WSL_DISTRO_NAME" ]]; then
+  surrealist() {
+    local exe
+    exe="$(wslpath "$(cmd.exe /c 'echo %LOCALAPPDATA%' 2>/dev/null | tr -d '\r')" 2>/dev/null)/Surrealist/surrealist.exe"
+    if [[ -x "$exe" ]]; then ("$exe" "$@" >/dev/null 2>&1 &)
+    else echo "Surrealist not installed on Windows — run: dotup" >&2; return 1; fi
+  }
+fi
+
 # dotprofile — manage the device profile (rename/copy per-profile files):
 #   dotprofile                      show current   dotprofile rename <new>        move
 #   dotprofile rename <new> --copy  copy & switch

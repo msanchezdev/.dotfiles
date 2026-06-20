@@ -114,3 +114,16 @@ if [ "$(os_id)" = macos ]; then
     warn "then re-run dotup to accept the license and fetch the iOS simulator."
   fi
 fi
+
+# Surrealist on WSL: it's the Windows app (no Linux install) — install the latest
+# from GitHub and launch it via the `surrealist` shell alias.
+if is_wsl && has cmd.exe; then
+  _sl_exe="$(wslpath "$(cmd.exe /c 'echo %LOCALAPPDATA%' 2>/dev/null | tr -d '\r')" 2>/dev/null)/Surrealist/surrealist.exe"
+  if [ -x "$_sl_exe" ]; then
+    skip "Surrealist (Windows) present"
+  else
+    info "installing Surrealist on Windows (latest)"
+    _run "surrealist (windows)" bash "$DOTFILES/scripts/install-surrealist-windows.sh" \
+      && ok "Surrealist (Windows)" || warn "Surrealist (Windows) install failed (see log)"
+  fi
+fi
