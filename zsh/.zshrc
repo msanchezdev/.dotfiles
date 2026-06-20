@@ -43,22 +43,24 @@ alias dotup='git -C "$HOME/.dotfiles" pull --ff-only && "$HOME/.dotfiles/install
 # pencil-desktop — Linux/WSL only (GPU flags for Vulkan rendering).
 [[ "$OSTYPE" == linux* ]] && alias pencil-desktop="$HOME/.local/bin/pencil-desktop --ignore-gpu-blocklist --enable-features=Vulkan"
 
-# macOS app launchers — open the installed .app from the terminal. (Not `pencil`,
-# which is the bun-installed Pencil CLI; `pencil-desktop` matches Linux.)
-if [[ "$OSTYPE" == darwin* ]]; then
-  alias pencil-desktop='open -a Pencil'
-  alias surrealist='open -a Surrealist'
-fi
+# pencil-desktop on macOS — open the .app. (Not `pencil`, which is the
+# bun-installed Pencil CLI.)
+[[ "$OSTYPE" == darwin* ]] && alias pencil-desktop='open -a Pencil'
 
-# WSL: Surrealist runs as the Windows app — launch its .exe from the terminal.
-if [[ -n "$WSL_DISTRO_NAME" ]]; then
-  surrealist() {
+# Surrealist launcher — one function (a name can't be both an alias and a
+# function, so don't alias it): macOS .app, or the Windows app under WSL.
+surrealist() {
+  if [[ "$OSTYPE" == darwin* ]]; then
+    open -a Surrealist "$@"
+  elif [[ -n "$WSL_DISTRO_NAME" ]]; then
     local exe
     exe="$(wslpath "$(cmd.exe /c 'echo %LOCALAPPDATA%' 2>/dev/null | tr -d '\r')" 2>/dev/null)/Surrealist/surrealist.exe"
     if [[ -x "$exe" ]]; then ("$exe" "$@" >/dev/null 2>&1 &)
     else echo "Surrealist not installed on Windows — run: dotup" >&2; return 1; fi
-  }
-fi
+  else
+    echo "surrealist: not set up on this platform" >&2; return 1
+  fi
+}
 
 # dotprofile — manage the device profile (rename/copy per-profile files):
 #   dotprofile                      show current   dotprofile rename <new>        move
