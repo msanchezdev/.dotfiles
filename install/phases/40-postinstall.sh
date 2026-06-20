@@ -26,8 +26,14 @@ fi
 # Idempotent: a no-op once the login shell is already zsh.
 if [ -L "$HOME/.zshrc" ] || [ -e "$HOME/.zshrc" ]; then
   zsh_path="$(command -v zsh || true)"
-  current_shell="$(getent passwd "$USER" 2>/dev/null | cut -d: -f7)"
-  [ -z "$current_shell" ] && current_shell="${SHELL:-}"   # macOS has no getent
+  # Login shell: getent on Linux. macOS has no getent, and calling it under
+  # `set -e`/pipefail aborts the whole run — so gate it and fall back to $SHELL.
+  if has getent; then
+    current_shell="$(getent passwd "$USER" 2>/dev/null | cut -d: -f7 || true)"
+  else
+    current_shell="${SHELL:-}"
+  fi
+  [ -n "$current_shell" ] || current_shell="${SHELL:-}"
   if [ -z "$zsh_path" ]; then
     skip "zsh not found — leaving default shell"
   elif [ "$current_shell" = "$zsh_path" ]; then
