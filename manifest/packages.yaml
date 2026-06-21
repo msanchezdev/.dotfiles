@@ -70,6 +70,7 @@ packages:
   - { via: brew, name: yazi,      bin: yazi,   tags: [cli] }    # file manager; `y` fn in zsh/.zshrc
   - { via: brew, name: btop,      bin: btop,   tags: [cli] }    # resource monitor
   - { via: brew, name: htop,      bin: htop,   tags: [cli] }    # process viewer
+  - { via: brew, name: bat,       bin: bat,    tags: [cli] }    # cat w/ syntax highlighting
 
   # SSH server — Linux only (macOS has sshd built-in; enabled via Remote Login
   # in postinstall). Hardened to key-only in etc/ssh/sshd_config.d/, enabled in
