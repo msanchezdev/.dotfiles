@@ -105,9 +105,21 @@ fi
 # Xcode + iOS Simulator (macOS). Installing Xcode needs your Apple ID, so we
 # only nudge for that; once full Xcode is selected we accept the license and
 # fetch the iOS simulator runtime (a few GB, one-time).
-if [ "$(os_id)" = macos ]; then
-  # Active developer dir is an Xcode .app (any version, e.g. Xcode-26.5.0.app) —
-  # NOT the CommandLineTools.
+if [ "$(os_id)" = macos ] && has xcodes; then
+  # 1. Install Xcode if none is present. The Apple ID sign-in is unavoidable —
+  #    xcodes prompts for it interactively (download is ~15GB).
+  if ! ls -d /Applications/Xcode*.app >/dev/null 2>&1; then
+    info "installing Xcode via xcodes (prompts for your Apple ID, ~15GB)"
+    xcodes install --latest && ok "Xcode installed" \
+      || warn "xcodes install failed/cancelled — re-run: xcodes install --latest"
+  fi
+  # 2. Make the newest installed Xcode the active toolchain (its command-line
+  #    tools come with it) if the active dir isn't already an Xcode.
+  if ! xcode-select -p 2>/dev/null | grep -q '/Xcode[^/]*\.app/'; then
+    _xc="$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -1 || true)"
+    [ -n "$_xc" ] && sudo_keep && sudo xcode-select -s "$_xc" && ok "selected $(basename "$_xc")" || true
+  fi
+  # 3. With a full Xcode active: accept the license + fetch the iOS simulator.
   if xcode-select -p 2>/dev/null | grep -q '/Xcode[^/]*\.app/'; then
     sudo_keep && sudo xcodebuild -license accept >/dev/null 2>&1 && ok "Xcode license accepted" || true
     if xcrun simctl list runtimes 2>/dev/null | grep -qi 'iOS'; then
@@ -115,14 +127,8 @@ if [ "$(os_id)" = macos ]; then
     else
       info "downloading iOS simulator runtime (several GB)…"
       _run "iOS simulator runtime" xcodebuild -downloadPlatform iOS \
-        && ok "iOS simulator runtime" || warn "run: xcodebuild -downloadPlatform iOS (see log)"
+        && ok "iOS simulator runtime" || warn "iOS simulator download failed (see log) — xcodebuild -downloadPlatform iOS"
     fi
-  elif ls -d /Applications/Xcode*.app >/dev/null 2>&1; then
-    warn "Xcode is installed but not active — select it: sudo xcode-select -s /Applications/Xcode*.app"
-    warn "(or 'xcodes select'), then re-run dotup for the license + iOS simulator."
-  elif has xcodes; then
-    warn "Xcode not installed — run: xcodes install --latest  (signs in with your Apple ID),"
-    warn "then re-run dotup to accept the license and fetch the iOS simulator."
   fi
 fi
 
