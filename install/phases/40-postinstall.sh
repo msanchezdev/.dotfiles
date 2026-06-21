@@ -133,7 +133,14 @@ if [ "$(os_id)" = macos ] && has xcodes; then
   fi
   # 3. With a full Xcode active: accept the license + fetch the iOS simulator.
   if xcode-select -p 2>/dev/null | grep -q '/Xcode[^/]*\.app/'; then
-    sudo_keep && sudo xcodebuild -license accept >/dev/null 2>&1 && ok "Xcode license accepted" || true
+    # `xcodebuild -version` succeeds only once the license is accepted — use it
+    # to gate the sudo accept so it doesn't prompt every run.
+    if xcodebuild -version >/dev/null 2>&1; then
+      skip "Xcode license accepted"
+    elif sudo_keep; then
+      _run "Xcode license" sudo xcodebuild -license accept && ok "Xcode license accepted" \
+        || warn "Xcode license accept failed (see log)"
+    fi
     if xcrun simctl list runtimes 2>/dev/null | grep -qi 'iOS'; then
       skip "iOS simulator runtime present"
     else
