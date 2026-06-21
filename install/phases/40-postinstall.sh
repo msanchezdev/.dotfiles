@@ -36,8 +36,8 @@ if [ -L "$HOME/.zshrc" ] || [ -e "$HOME/.zshrc" ]; then
   [ -n "$current_shell" ] || current_shell="${SHELL:-}"
   if [ -z "$zsh_path" ]; then
     skip "zsh not found — leaving default shell"
-  elif [ "$current_shell" = "$zsh_path" ]; then
-    skip "default shell already zsh"
+  elif [ "$current_shell" = "$zsh_path" ] || [ "${current_shell##*/}" = zsh ]; then
+    skip "default shell already zsh"   # any zsh (path may differ from command -v zsh)
   elif ! has chsh; then
     warn "chsh unavailable — set zsh as your login shell manually"
   else
@@ -73,18 +73,30 @@ if [ "$(os_id)" = macos ] && has colima && [ ! -f "$HOME/.colima/default/colima.
     || warn "couldn't seed colima config"
 fi
 
-# SSH server (key-only, reached over Tailscale). Drop the hardening config into
-# /etc/ssh/sshd_config.d/ and enable sshd. Linux: openssh-server (manifest) +
-# systemd/service; macOS: built-in sshd via Remote Login. Needs sudo.
+# SSH server (key-only, reached over Tailscale). Linux: openssh-server (manifest)
+# + systemd/service; macOS: built-in sshd via Remote Login.
 _sshd_conf="$DOTFILES/etc/ssh/sshd_config.d/10-dotfiles-hardening.conf"
+_sshd_dest="/etc/ssh/sshd_config.d/$(basename "$_sshd_conf")"
 if { [ "$(os_id)" = linux ] && [ -x /usr/sbin/sshd ]; } || [ "$(os_id)" = macos ]; then
-  if sudo_keep; then
+  # authorized_keys: key-only SSH locks you out with none — seed from GitHub.
+  if [ ! -s "$HOME/.ssh/authorized_keys" ]; then
+    mkdir -p "$HOME/.ssh" && chmod 700 "$HOME/.ssh"
+    if _run "authorized_keys (github)" curl -fsSL -o "$HOME/.ssh/authorized_keys" https://github.com/msanchezdev.keys \
+       && [ -s "$HOME/.ssh/authorized_keys" ]; then
+      chmod 600 "$HOME/.ssh/authorized_keys"; ok "authorized_keys from github.com/msanchezdev.keys"
+    else
+      warn "couldn't fetch authorized_keys — add your public key manually"
+    fi
+  fi
+  # Config + enable need sudo. Skip (no password prompt) once the hardening
+  # config is already in place, so re-runs don't re-prompt every time.
+  if [ -f "$_sshd_dest" ] && cmp -s "$_sshd_conf" "$_sshd_dest" 2>/dev/null; then
+    skip "ssh server (key-only) already configured"
+  elif sudo_keep; then
     info "configuring ssh server (key-only)"
     sudo mkdir -p /etc/ssh/sshd_config.d
     sudo install -m 0644 "$_sshd_conf" /etc/ssh/sshd_config.d/ \
       && ok "sshd key-only config" || warn "couldn't write /etc/ssh/sshd_config.d/"
-    [ -s "$HOME/.ssh/authorized_keys" ] \
-      || warn "no ~/.ssh/authorized_keys — add your public key or key-only SSH will lock you out"
     if [ "$(os_id)" = macos ]; then
       if _run "ssh: enable Remote Login" sudo systemsetup -setremotelogin on; then
         ok "Remote Login on"
