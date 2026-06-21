@@ -94,9 +94,10 @@ packages:
   - { via: brew, name: colima,         bin: colima,         only: [macos], tags: [dev] }
   # Rosetta 2 — Apple Silicon only. Colima's seeded config uses `rosetta: true`
   # to run amd64 images; without it `colima start` hangs at SSH (FATAL[0601]).
-  # Idempotent: skips on Intel and when Rosetta is already present.
-  - { via: script, name: rosetta, only: [macos], tags: [dev],
-      cmd: "[ \"$(uname -m)\" != arm64 ] || /usr/bin/arch -x86_64 /usr/bin/true 2>/dev/null || softwareupdate --install-rosetta --agree-to-license" }
+  # bin = the Rosetta runtime marker, so it skips when installed (no "installing"
+  # every run); the cmd self-skips on Intel (softwareupdate would fail there).
+  - { via: script, name: rosetta, bin: /Library/Apple/usr/libexec/oah/libRosettaRuntime, only: [macos], tags: [dev],
+      cmd: "[ \"$(uname -m)\" != arm64 ] || softwareupdate --install-rosetta --agree-to-license" }
   - { via: brew, name: docker,         bin: docker,         only: [macos], tags: [dev] }  # docker CLI client
   - { via: brew, name: docker-compose, bin: docker-compose, only: [macos], tags: [dev] }
   - { via: brew, name: docker-buildx,                       only: [macos], tags: [dev] }
