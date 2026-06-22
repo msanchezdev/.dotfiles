@@ -7,6 +7,12 @@ step "Stow config ($PROFILE)"
 
 has stow || { warn "stow missing — skipping symlinks"; return; }
 
+# ~/.claude holds Claude Code's own data + secrets (credentials, history); the
+# `claude` package only links one file (the statusline) into it. Pre-create it
+# as a real dir so stow descends and links just that file — never folds the
+# whole dir into the repo (which would pull credentials/history into git).
+mkdir -p "$HOME/.claude"
+
 # A stow package is a top-level dir holding at least one dotfile/.config entry
 # to link into $HOME. Dirs with no hidden entries (install/, manifest/, env/,
 # test/, ...) are repo infrastructure, not packages — skip them. This is
