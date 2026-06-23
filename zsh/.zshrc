@@ -9,7 +9,14 @@ for _brew in /opt/homebrew/bin/brew /home/linuxbrew/.linuxbrew/bin/brew /usr/loc
 done
 unset _brew
 export PATH="$HOME/.local/bin:$PATH"             # user binaries (claude, ...)
-[ -d "$HOME/.bun/bin" ] && export PATH="$HOME/.bun/bin:$PATH"
+
+# --- bun (PATH + shell completions) ---
+export BUN_INSTALL="$HOME/.bun"
+[ -d "$BUN_INSTALL/bin" ] && export PATH="$BUN_INSTALL/bin:$PATH"
+[ -s "$BUN_INSTALL/_bun" ] && source "$BUN_INSTALL/_bun"
+
+# --- default editor ---
+export EDITOR=nvim VISUAL=nvim
 
 # --- nvm (Node Version Manager; installed by the manifest into ~/.nvm) ---
 export NVM_DIR="$HOME/.nvm"

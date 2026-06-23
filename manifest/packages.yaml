@@ -26,6 +26,13 @@ packages:
   - { via: bun,  name: "@typescript/native-preview", bin: tsgo, tags: [nvim, lsp] }            # tsgo (ts/js)
   - { via: bun,  name: vscode-langservers-extracted, bin: vscode-json-language-server, tags: [nvim, lsp] }  # jsonls
   - { via: bun,  name: yaml-language-server, bin: yaml-language-server, tags: [nvim, lsp] }    # yamlls
+  # formatters (conform.nvim — nvim/.config/nvim/lua/plugins/conform.lua). jq is
+  # bootstrap-managed; tsgo is the @typescript/native-preview LSP above.
+  - { via: brew, name: stylua,              bin: stylua,    tags: [nvim, format] }   # lua
+  - { via: bun,  name: "@biomejs/biome",    bin: biome,     tags: [nvim, format] }   # js/ts (fast)
+  - { via: bun,  name: prettier,            bin: prettier,  tags: [nvim, format] }   # js/ts/md/css/...
+  - { via: bun,  name: "@fsouza/prettierd", bin: prettierd, tags: [nvim, format] }   # prettier daemon
+  - { via: brew, name: shfmt,               bin: shfmt,     tags: [nvim, format] }   # shell
 
   # tmux + its plugin manager (config in tmux/.tmux.conf loads plugins via tpm)
   - { via: brew, name: tmux, bin: tmux, tags: [core] }
@@ -71,6 +78,7 @@ packages:
   - { via: brew, name: btop,      bin: btop,   tags: [cli] }    # resource monitor
   - { via: brew, name: htop,      bin: htop,   tags: [cli] }    # process viewer
   - { via: brew, name: bat,       bin: bat,    tags: [cli] }    # cat w/ syntax highlighting
+  - { via: brew, name: httpie,    bin: http,   tags: [cli] }    # HTTP client (`http`/`https`)
 
   # SSH server — Linux only (macOS has sshd built-in; enabled via Remote Login
   # in postinstall). Hardened to key-only in etc/ssh/sshd_config.d/, enabled in
