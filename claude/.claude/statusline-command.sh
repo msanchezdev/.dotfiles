@@ -49,71 +49,61 @@ if [ -f "$tp" ]; then
   fi
 fi
 
-# ANSI helpers
-DIM="\033[2m"
-RST="\033[0m"
-CYAN="\033[0;36m"
-YELLOW="\033[0;33m"
-RED="\033[0;31m"
-GREEN="\033[0;32m"
-MAGENTA="\033[0;35m"
-SEP="${DIM} · ${RST}"
+# --- render: soft Dracula-colored boxes (matches the dracula/tmux theme) -----
+# Plain boxes (no powerline arrows): every segment is a soft selection-gray box
+# with accent-colored text, space-separated. Truecolor R;G;B from the palette.
+ESC=$'\033'; RST="${ESC}[0m"
+BOX="68;71;90"        # #44475a selection — the box background for every segment
+COMMENT="98;114;164"  # #6272a4
+CYAN="139;233;253"    # #8be9fd
+GREEN="80;250;123"    # #50fa7b
+YELLOW="241;250;140"  # #f1fa8c
+ORANGE="255;184;108"  # #ffb86c
+PINK="255;121;198"    # #ff79c6
+PURPLE="189;147;249"  # #bd93f9
+RED="255;85;85"       # #ff5555
+WT=$'⑂'; RLD=$'↻'
 
-# Session total cost (USD); color escalates as it adds up.
-cost_seg=""
-_cost=$(echo "$input" | jq -r '.cost.total_cost_usd // empty')
-if [ -n "$_cost" ]; then
-  _cc="$DIM"
-  awk "BEGIN{exit !(${_cost} >= 1)}"  2>/dev/null && _cc="$YELLOW"
-  awk "BEGIN{exit !(${_cost} >= 5)}"  2>/dev/null && _cc="$RED"
-  cost_seg="${_cc}\$$(printf '%.2f' "$_cost")${RST}"
+out=""
+box() { out="${out}${ESC}[48;2;${BOX}m${ESC}[38;2;${1}m ${2} ${RST} "; }   # <fg> <text>
+
+# threshold -> accent (soft): remaining (green→orange→red), used (green→yellow→red)
+_remain_fg() { if [ "$1" -lt 20 ]; then printf '%s' "$RED"; elif [ "$1" -lt 50 ]; then printf '%s' "$ORANGE"; else printf '%s' "$GREEN"; fi; }
+_used_fg()   { if [ "$1" -ge 80 ]; then printf '%s' "$RED"; elif [ "$1" -ge 50 ]; then printf '%s' "$YELLOW"; else printf '%s' "$GREEN"; fi; }
+
+[ -n "$model" ]    && box "$PURPLE" "$model"
+[ -n "$dir_name" ] && box "$CYAN"   "$dir_name"
+[ -n "$git_wt" ]   && box "$PINK"   "${WT} ${git_wt}"
+if [ -n "$git_branch" ]; then
+  if [ -n "$git_dirty" ]; then box "$ORANGE" "${git_branch}*"; else box "$GREEN" "$git_branch"; fi
 fi
+[ -n "$ctx_pct" ]  && box "$(_used_fg "$ctx_pct")" "ctx ${ctx_pct}%"
 
-# Claude usage windows (rate limits): % left + session reset countdown. Color
-# reflects how much is LEFT (green plenty → red running low).
-sess_seg=""; week_seg=""
-_now=$(date +%s)
-_left_color() { local l="$1"; if [ "$l" -lt 20 ]; then printf '%s' "$RED"; elif [ "$l" -lt 50 ]; then printf '%s' "$YELLOW"; else printf '%s' "$GREEN"; fi; }
+# session (5h) usage left + reset countdown
 _u5=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')
 if [ -n "$_u5" ]; then
-  _l5=$(( 100 - _u5 )); _c5=$(_left_color "$_l5")
-  sess_seg="${_c5}5h ${_l5}%${RST}"
-  _r5=$(echo "$input" | jq -r '.rate_limits.five_hour.resets_at // empty')
+  _l5=$(( 100 - _u5 )); _t5="5h ${_l5}%"
+  _r5=$(echo "$input" | jq -r '.rate_limits.five_hour.resets_at // empty'); _now=$(date +%s)
   if [ -n "$_r5" ] && [ "$_r5" -gt "$_now" ] 2>/dev/null; then
     _s=$(( _r5 - _now )); _h=$(( _s / 3600 )); _m=$(( (_s % 3600) / 60 ))
-    [ "$_h" -gt 0 ] && _rs="${_h}h${_m}m" || _rs="${_m}m"
-    sess_seg="${sess_seg} ${DIM}↻${_rs}${RST}"
+    [ "$_h" -gt 0 ] && _t5="${_t5} ${RLD}${_h}h${_m}m" || _t5="${_t5} ${RLD}${_m}m"
   fi
+  box "$(_remain_fg "$_l5")" "$_t5"
 fi
+
+# weekly (7d) usage left
 _u7=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // empty')
-if [ -n "$_u7" ]; then
-  _l7=$(( 100 - _u7 )); week_seg="$(_left_color "$_l7")7d ${_l7}%${RST}"
+[ -n "$_u7" ] && box "$(_remain_fg "$(( 100 - _u7 ))")" "7d $(( 100 - _u7 ))%"
+
+# session cost (comment → orange ≥$1 → red ≥$5)
+_cost=$(echo "$input" | jq -r '.cost.total_cost_usd // empty')
+if [ -n "$_cost" ]; then
+  _cf="$COMMENT"
+  awk "BEGIN{exit !(${_cost} >= 1)}" 2>/dev/null && _cf="$ORANGE"
+  awk "BEGIN{exit !(${_cost} >= 5)}" 2>/dev/null && _cf="$RED"
+  box "$_cf" "\$$(printf '%.2f' "$_cost")"
 fi
 
-# Assemble left-to-right: model · dir · branch[*] · ctx% · 5h · 7d · cost · version
-out=""
-add() { [ -z "$out" ] && out="$1" || out="${out}${SEP}$1"; }
+[ -n "$schemic_ver" ] && box "$COMMENT" "$schemic_ver"
 
-[ -n "$model" ]     && add "${DIM}${model}${RST}"
-[ -n "$dir_name" ]  && add "${CYAN}${dir_name}${RST}"
-[ -n "$git_wt" ]    && add "${MAGENTA}⑂ ${git_wt}${RST}"
-
-if [ -n "$git_branch" ]; then
-  branch_seg="${YELLOW}${git_branch}${RST}"
-  [ -n "$git_dirty" ] && branch_seg="${branch_seg}${RED}*${RST}"
-  add "$branch_seg"
-fi
-
-if [ -n "$ctx_pct" ]; then
-  ctx_color="$GREEN"
-  [ "$ctx_pct" -ge 50 ] && ctx_color="$YELLOW"
-  [ "$ctx_pct" -ge 80 ] && ctx_color="$RED"
-  add "${ctx_color}ctx ${ctx_pct}%${RST}"
-fi
-
-[ -n "$sess_seg" ]    && add "$sess_seg"
-[ -n "$week_seg" ]    && add "$week_seg"
-[ -n "$cost_seg" ]    && add "$cost_seg"
-[ -n "$schemic_ver" ] && add "${GREEN}${schemic_ver}${RST}"
-
-printf "%b\n" "$out"
+printf '%s\n' "$out"
