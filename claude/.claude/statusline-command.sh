@@ -65,7 +65,8 @@ RED="255;85;85"       # #ff5555
 WT=$'⑂'; RLD=$'↻'
 
 out=""
-box() { out="${out}${ESC}[48;2;${BOX}m${ESC}[38;2;${1}m ${2} ${RST} "; }   # <fg> <text>
+# soft box background + strong (bold) accent foreground
+box() { out="${out}${ESC}[48;2;${BOX}m${ESC}[1m${ESC}[38;2;${1}m ${2} ${RST} "; }   # <fg> <text>
 
 # threshold -> accent (soft): remaining (green→orange→red), used (green→yellow→red)
 _remain_fg() { if [ "$1" -lt 20 ]; then printf '%s' "$RED"; elif [ "$1" -lt 50 ]; then printf '%s' "$ORANGE"; else printf '%s' "$GREEN"; fi; }
