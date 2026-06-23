@@ -59,7 +59,38 @@ GREEN="\033[0;32m"
 MAGENTA="\033[0;35m"
 SEP="${DIM} · ${RST}"
 
-# Assemble left-to-right: model · dir · branch[*] · version
+# Session total cost (USD); color escalates as it adds up.
+cost_seg=""
+_cost=$(echo "$input" | jq -r '.cost.total_cost_usd // empty')
+if [ -n "$_cost" ]; then
+  _cc="$DIM"
+  awk "BEGIN{exit !(${_cost} >= 1)}"  2>/dev/null && _cc="$YELLOW"
+  awk "BEGIN{exit !(${_cost} >= 5)}"  2>/dev/null && _cc="$RED"
+  cost_seg="${_cc}\$$(printf '%.2f' "$_cost")${RST}"
+fi
+
+# Claude usage windows (rate limits): % left + session reset countdown. Color
+# reflects how much is LEFT (green plenty → red running low).
+sess_seg=""; week_seg=""
+_now=$(date +%s)
+_left_color() { local l="$1"; if [ "$l" -lt 20 ]; then printf '%s' "$RED"; elif [ "$l" -lt 50 ]; then printf '%s' "$YELLOW"; else printf '%s' "$GREEN"; fi; }
+_u5=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')
+if [ -n "$_u5" ]; then
+  _l5=$(( 100 - _u5 )); _c5=$(_left_color "$_l5")
+  sess_seg="${_c5}5h ${_l5}%${RST}"
+  _r5=$(echo "$input" | jq -r '.rate_limits.five_hour.resets_at // empty')
+  if [ -n "$_r5" ] && [ "$_r5" -gt "$_now" ] 2>/dev/null; then
+    _s=$(( _r5 - _now )); _h=$(( _s / 3600 )); _m=$(( (_s % 3600) / 60 ))
+    [ "$_h" -gt 0 ] && _rs="${_h}h${_m}m" || _rs="${_m}m"
+    sess_seg="${sess_seg} ${DIM}↻${_rs}${RST}"
+  fi
+fi
+_u7=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // empty')
+if [ -n "$_u7" ]; then
+  _l7=$(( 100 - _u7 )); week_seg="$(_left_color "$_l7")7d ${_l7}%${RST}"
+fi
+
+# Assemble left-to-right: model · dir · branch[*] · ctx% · 5h · 7d · cost · version
 out=""
 add() { [ -z "$out" ] && out="$1" || out="${out}${SEP}$1"; }
 
@@ -80,6 +111,9 @@ if [ -n "$ctx_pct" ]; then
   add "${ctx_color}ctx ${ctx_pct}%${RST}"
 fi
 
+[ -n "$sess_seg" ]    && add "$sess_seg"
+[ -n "$week_seg" ]    && add "$week_seg"
+[ -n "$cost_seg" ]    && add "$cost_seg"
 [ -n "$schemic_ver" ] && add "${GREEN}${schemic_ver}${RST}"
 
 printf "%b\n" "$out"
