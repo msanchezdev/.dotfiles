@@ -92,24 +92,20 @@ packages:
   - { via: script, name: google-chrome, bin: google-chrome, only: [linux], tags: [app],
       cmd: "sudo apt-get update -qq && curl -fsSL -o /tmp/google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && sudo apt-get install -y /tmp/google-chrome.deb && rm -f /tmp/google-chrome.deb" }
 
-  # Docker on macOS via Colima (free/OSS, no licensing). CLI-only: run
-  # `colima start` to bring up the runtime (docker context is set automatically;
-  # `colima start --profile <name>` for per-project/company VMs). On WSL you use
-  # Docker Desktop on Windows instead. (Alternatives: cask 'orbstack' or 'docker-desktop'.)
+  # Docker Desktop on macOS (cask — bundles the docker CLI, compose, and buildx;
+  # no separate brew formulae needed). On WSL you use Docker Desktop on Windows
+  # instead. (Licence-free alternatives: cask 'orbstack', or 'colima' for a
+  # CLI-only OSS runtime.)
+  - { via: cask, name: docker-desktop, only: [macos], tags: [dev] }
   # Tailscale (macOS GUI app + system extension; includes the `tailscale` CLI).
   # On WSL you use Tailscale on Windows.
   - { via: cask, name: tailscale-app, only: [macos], tags: [app] }
-
-  - { via: brew, name: colima,         bin: colima,         only: [macos], tags: [dev] }
-  # Rosetta 2 — Apple Silicon only. Colima's seeded config uses `rosetta: true`
-  # to run amd64 images; without it `colima start` hangs at SSH (FATAL[0601]).
-  # bin = the Rosetta runtime marker, so it skips when installed (no "installing"
-  # every run); the cmd self-skips on Intel (softwareupdate would fail there).
+  # Rosetta 2 — Apple Silicon only. Docker Desktop's "Use Rosetta for amd64
+  # emulation" (faster than QEMU) needs it, as do many other amd64 binaries. bin
+  # = the Rosetta runtime marker, so it skips when present (no "installing" every
+  # run); the cmd self-skips on Intel (softwareupdate would fail there).
   - { via: script, name: rosetta, bin: /Library/Apple/usr/libexec/oah/libRosettaRuntime, only: [macos], tags: [dev],
       cmd: "[ \"$(uname -m)\" != arm64 ] || softwareupdate --install-rosetta --agree-to-license" }
-  - { via: brew, name: docker,         bin: docker,         only: [macos], tags: [dev] }  # docker CLI client
-  - { via: brew, name: docker-compose, bin: docker-compose, only: [macos], tags: [dev] }
-  - { via: brew, name: docker-buildx,                       only: [macos], tags: [dev] }
 
   # Xcode + iOS Simulator (macOS). `xcodes` manages Xcode versions; `aria2`
   # gives it faster parallel downloads. Installing Xcode itself needs your Apple

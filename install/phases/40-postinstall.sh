@@ -59,19 +59,8 @@ if has gh && ! gh auth status >/dev/null 2>&1; then
   warn "register an SSH key — needed for 'git push' (and 'dotup' if pulling over SSH)."
 fi
 
-# (Rosetta 2 is installed by the manifest — `rosetta` script entry — so it's in
-# place before this seeds the rosetta: true Colima config.)
-
-# Seed Colima's default config (resources + Apple Silicon vz/virtiofs/rosetta)
-# if the user hasn't created one yet. Colima manages the file after first start,
-# so only seed when absent (never clobber).
-if [ "$(os_id)" = macos ] && has colima && [ ! -f "$HOME/.colima/default/colima.yaml" ]; then
-  info "seeding Colima default config"
-  mkdir -p "$HOME/.colima/default"
-  cp "$DOTFILES/colima/colima.yaml" "$HOME/.colima/default/colima.yaml" \
-    && ok "colima config (edit ~/.colima/default/colima.yaml to tune)" \
-    || warn "couldn't seed colima config"
-fi
+# Docker Desktop (macOS) is a self-contained GUI app — no config seeding here;
+# launch it once to start the engine and set up the docker CLI context.
 
 # SSH server (key-only, reached over Tailscale). Linux: openssh-server (manifest)
 # + systemd/service; macOS: built-in sshd via Remote Login.
