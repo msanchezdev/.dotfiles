@@ -21,6 +21,28 @@ else
   skip "nvim not installed"
 fi
 
+# Claude Code statusline: the script is stowed to ~/.claude/statusline-command.sh,
+# but what activates it is the `statusLine` entry in settings.json — which is
+# machine-local (model/permissions differ per box, so it's not stowed). Wire just
+# that one entry in idempotently with jq, leaving everything else in the file
+# untouched. Skip when a statusline already points at our script (no churn).
+if has claude && has jq && [ -e "$HOME/.claude/statusline-command.sh" ]; then
+  _cset="$HOME/.claude/settings.json"
+  [ -f "$_cset" ] || echo '{}' > "$_cset"
+  case "$(jq -r '.statusLine.command // ""' "$_cset" 2>/dev/null)" in
+    *statusline-command.sh*) skip "claude statusline already configured" ;;
+    *)
+      _ctmp="$(mktemp)"
+      if jq '.statusLine = {type: "command", command: "bash ~/.claude/statusline-command.sh"}' \
+           "$_cset" > "$_ctmp" 2>/dev/null && [ -s "$_ctmp" ]; then
+        mv "$_ctmp" "$_cset" && ok "wired claude statusline into settings.json"
+      else
+        rm -f "$_ctmp"; warn "couldn't wire statusline into ~/.claude/settings.json"
+      fi
+      ;;
+  esac
+fi
+
 # Make zsh the default login shell. The git-cloned oh-my-zsh (unlike the
 # official installer) doesn't run chsh, so a fresh Linux box would stay on bash.
 # Idempotent: a no-op once the login shell is already zsh.
