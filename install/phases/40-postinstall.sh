@@ -60,7 +60,19 @@ if has gh && ! gh auth status >/dev/null 2>&1; then
 fi
 
 # Docker Desktop (macOS) is a self-contained GUI app — no config seeding here;
-# launch it once to start the engine and set up the docker CLI context.
+# launch it once to start the engine and set up the docker CLI context. We
+# switched off Colima, but the installer never uninstalls — so flag any leftover
+# brew formulae (the brew `docker` CLI also collides with Docker Desktop's).
+if [ "$(os_id)" = macos ] && has brew; then
+  _stale_docker=""
+  for _f in colima docker docker-compose docker-buildx; do
+    brew list --versions "$_f" >/dev/null 2>&1 && _stale_docker="$_stale_docker $_f"
+  done
+  if [ -n "$_stale_docker" ]; then
+    warn "leftover Colima/docker brew formulae (Docker Desktop bundles the CLI):$_stale_docker"
+    warn "  remove with:  brew uninstall$_stale_docker"
+  fi
+fi
 
 # SSH server (key-only, reached over Tailscale). Linux: openssh-server (manifest)
 # + systemd/service; macOS: built-in sshd via Remote Login.
