@@ -11,7 +11,16 @@ return {
   },
   config = function()
     local telescope = require('telescope')
-    telescope.setup({})
+    telescope.setup({
+      defaults = {
+        -- nvim-treesitter `main` (the rewrite) removed the classic
+        -- parsers.ft_to_lang / configs API that telescope's preview highlighter
+        -- still calls, so its treesitter path errors ("attempt to call field
+        -- 'ft_to_lang' (a nil value)"). Disable TS in previews — they fall back
+        -- to vim's :syntax highlighting; editing buffers keep full TS highlights.
+        preview = { treesitter = false },
+      },
+    })
 
     local builtin = require('telescope.builtin')
     local map = function(keys, fn, desc)
